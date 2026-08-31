@@ -1,0 +1,6 @@
+{
+  "name": "پلنر",
+  "description": "سیستم جامع مدیریت زمان، وظایف، پروژه‌ها، اهداف، عادت‌ها و بهره‌وری شخصی",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
