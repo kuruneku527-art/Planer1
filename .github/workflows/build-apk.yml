@@ -1,4 +1,4 @@
-name: Build APK
+name: Build Android APK
 
 on:
   workflow_dispatch:
@@ -8,49 +8,50 @@ on:
 
 jobs:
   build-apk:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
+      # 1. دریافت کد پروژه
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. نصب Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install Capacitor
-        run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-
-      - name: Build web app
-        run: npm run build
-
-      - name: Initialize Capacitor
-        run: |
-          npx cap init Planer com.kuruneku.planer --web-dir dist
-
-      - name: Add Android platform
-        run: npx cap add android
-
-      - name: Copy web app to Android
-        run: npx cap copy android
-
+      # 3. نصب Java 21
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '21'
+          cache: gradle
 
-      - name: Build APK
-        working-directory: android
+      # 4. نصب وابستگی‌های پروژه
+      - name: Install dependencies
+        run: npm ci
+
+      # 5. ساخت/همگام‌سازی پروژه Android
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      # 6. دادن دسترسی اجرای Gradle
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      # 7. ساخت APK
+      - name: Build Debug APK
         run: ./gradlew assembleDebug
+        working-directory: android
 
+      # 8. ذخیره APK ساخته شده
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Planer-APK
+          name: Planer1-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
