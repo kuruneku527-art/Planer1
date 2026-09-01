@@ -30,8 +30,13 @@ export const WelcomeModal: React.FC = () => {
       <div className="space-y-5 text-center" dir="rtl">
         {step === 1 && (
           <div className="space-y-4 py-2">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-purple-900/50">
-              <Sparkles className="w-8 h-8" />
+            <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden bg-slate-950 border border-purple-500/40 shadow-xl shadow-purple-900/50 flex items-center justify-center">
+              <img
+                src="/logo.jpg"
+                alt="لوگوی پلنر"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
 
             <h3 className="text-lg font-bold text-slate-100">کنترل کامل زمان و اهداف شما</h3>

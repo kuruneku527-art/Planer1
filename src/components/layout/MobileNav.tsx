@@ -184,8 +184,13 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
                 }}
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center">
-                    <Sparkles className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-xl overflow-hidden bg-slate-950 border border-purple-500/30 flex items-center justify-center shrink-0">
+                    <img
+                      src="/logo.jpg"
+                      alt="لوگوی پلنر"
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
                   <span className="font-extrabold text-slate-100">منوی بخش‌های پلنر</span>
                 </div>

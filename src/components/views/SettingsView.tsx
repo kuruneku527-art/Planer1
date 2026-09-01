@@ -236,6 +236,29 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
+        {/* App Info & Logo Card */}
+        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-center gap-5">
+          <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-950 border border-purple-500/30 shadow-xl shadow-purple-900/30 flex items-center justify-center shrink-0">
+            <img
+              src="/logo.jpg"
+              alt="لوگوی پلنر"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          <div className="text-center sm:text-right space-y-1">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <h4 className="font-extrabold text-base text-slate-100">اپلیکیشن مدیریت زمان و برنامه‌ریزی پلنر</h4>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800/50 font-mono font-bold">
+                v1.0.0
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              سیستم جامع و آفلاین برای دستیابی به اهداف، مدیریت وظایف روزانه، بهبود عادات و تمرکز عمیق.
+            </p>
+          </div>
+        </div>
+
         {/* Submit */}
         <div className="flex justify-end">
           <button

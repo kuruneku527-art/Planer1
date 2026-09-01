@@ -133,8 +133,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, setCollapse
       >
         {!isCollapsed && (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-900/40">
-              <Sparkles className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-950 border border-purple-500/30 shadow-md shadow-purple-900/30 flex items-center justify-center shrink-0">
+              <img
+                src="/logo.jpg"
+                alt="لوگوی پلنر"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div>
               <div className="font-extrabold text-base text-slate-100 flex items-center gap-1.5">
@@ -149,8 +154,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, setCollapse
         )}
 
         {isCollapsed && (
-          <div className="w-10 h-10 mx-auto rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-900/40">
-            <Sparkles className="w-5 h-5" />
+          <div className="w-10 h-10 mx-auto rounded-xl overflow-hidden bg-slate-950 border border-purple-500/30 shadow-md shadow-purple-900/30 flex items-center justify-center shrink-0">
+            <img
+              src="/logo.jpg"
+              alt="لوگوی پلنر"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </div>
         )}
 
