@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { db } from '../../services/db';
 import { formatToJalali, toPersianDigits, toGregorianIsoDate } from '../../utils/jalali';
@@ -20,10 +20,12 @@ import {
   Sparkles,
   CheckCircle2,
   Circle,
+  Zap,
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
   const { openQuickAdd, setActiveView, refreshTrigger, settings, refreshDb } = useApp();
+  const [mobileTab, setMobileTab] = useState<'today' | 'habits_reminders' | 'actions'>('today');
 
   const todayIso = toGregorianIsoDate();
   const todayJalali = formatToJalali(new Date(), 'full', settings.persianDigits);
@@ -79,14 +81,6 @@ export const DashboardView: React.FC = () => {
     refreshDb();
   };
 
-  const hasAnyData =
-    allTasks.length > 0 ||
-    allEvents.length > 0 ||
-    allProjects.length > 0 ||
-    allGoals.length > 0 ||
-    allHabits.length > 0 ||
-    allPomodoro.length > 0;
-
   const focusHours = Math.floor(todayFocusMinutes / 60);
   const focusRemMinutes = todayFocusMinutes % 60;
   const focusTimeDisplay =
@@ -95,28 +89,28 @@ export const DashboardView: React.FC = () => {
       : `${focusRemMinutes} دقیقه`;
 
   return (
-    <div id="dashboard-view" className="space-y-6 max-w-7xl mx-auto" dir="rtl">
+    <div id="dashboard-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto" dir="rtl">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-indigo-950/40 border border-purple-800/30 p-6 sm:p-8">
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-indigo-950/40 border border-purple-800/30 p-4 sm:p-8">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-900/60 text-purple-300 text-xs font-semibold mb-2 border border-purple-700/40">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-purple-900/60 text-purple-300 text-[11px] sm:text-xs font-semibold mb-1.5 sm:mb-2 border border-purple-700/40">
+              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span>{todayJalali}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-100">
+            <h2 className="text-lg sm:text-2xl font-black text-slate-100">
               {settings.userName ? `سلام ${settings.userName}، روزت بخیر!` : 'سلام، به پلنر خوش آمدید!'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl leading-relaxed line-clamp-1 sm:line-clamp-none">
               مرکز کنترل روزانه برای مدیریت دقیق وظایف، برنامه‌ها، جلسات و عادت‌های سازنده شما.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto pt-1 sm:pt-0">
             <button
               type="button"
               onClick={() => openQuickAdd('task')}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-medium transition shadow-lg shadow-purple-950/50 cursor-pointer active:scale-98"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-medium transition shadow-lg shadow-purple-950/50 cursor-pointer active:scale-98"
             >
               <Plus className="w-4 h-4" />
               <span>وظیفه جدید</span>
@@ -124,7 +118,7 @@ export const DashboardView: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveView('pomodoro')}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700 transition cursor-pointer"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700 transition cursor-pointer"
             >
               <Timer className="w-4 h-4 text-purple-400" />
               <span>شروع تمرکز</span>
@@ -137,27 +131,27 @@ export const DashboardView: React.FC = () => {
       </div>
 
       {/* Top 4 Summary Metric Cards (Real Data) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Metric 1: Tasks */}
         <div
           onClick={() => setActiveView('tasks')}
-          className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-purple-800/40 transition cursor-pointer group"
+          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-purple-800/40 transition cursor-pointer group"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-semibold">وظایف امروز</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-950/60 text-purple-400 flex items-center justify-center group-hover:scale-105 transition">
-              <CheckSquare className="w-4 h-4" />
+          <div className="flex items-center justify-between text-slate-400 mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold">وظایف امروز</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-purple-950/60 text-purple-400 flex items-center justify-center group-hover:scale-105 transition">
+              <CheckSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-100">
+          <div className="flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-3xl font-extrabold text-slate-100">
               {settings.persianDigits ? toPersianDigits(completedTodayTasks.length) : completedTodayTasks.length}
             </span>
-            <span className="text-xs text-slate-400">
-              از {settings.persianDigits ? toPersianDigits(todayTasks.length) : todayTasks.length} وظیفه
+            <span className="text-[11px] sm:text-xs text-slate-400">
+              از {settings.persianDigits ? toPersianDigits(todayTasks.length) : todayTasks.length}
             </span>
           </div>
-          <div className="mt-3 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div className="mt-2.5 sm:mt-3 w-full bg-slate-800 h-1 sm:h-1.5 rounded-full overflow-hidden">
             <div
               className="bg-purple-500 h-full rounded-full transition-all duration-500"
               style={{
@@ -170,66 +164,66 @@ export const DashboardView: React.FC = () => {
         {/* Metric 2: Events */}
         <div
           onClick={() => setActiveView('calendar')}
-          className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-indigo-800/40 transition cursor-pointer group"
+          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-indigo-800/40 transition cursor-pointer group"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-semibold">رویدادها و جلسات</span>
-            <div className="w-8 h-8 rounded-xl bg-indigo-950/60 text-indigo-400 flex items-center justify-center group-hover:scale-105 transition">
-              <CalendarIcon className="w-4 h-4" />
+          <div className="flex items-center justify-between text-slate-400 mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold">رویدادها</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-indigo-950/60 text-indigo-400 flex items-center justify-center group-hover:scale-105 transition">
+              <CalendarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-100">
+          <div className="flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-3xl font-extrabold text-slate-100">
               {settings.persianDigits ? toPersianDigits(todayEvents.length) : todayEvents.length}
             </span>
-            <span className="text-xs text-slate-400">جلسه برای امروز</span>
+            <span className="text-[11px] sm:text-xs text-slate-400">برنامه امروز</span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3 truncate">
-            {todayEvents.length > 0 ? `اولین جلسه: ${todayEvents[0].startTime}` : 'جلسه‌ای برای امروز ثبت نشده'}
+          <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2.5 sm:mt-3 truncate">
+            {todayEvents.length > 0 ? `اولین: ${todayEvents[0].startTime}` : 'بدون جلسه'}
           </p>
         </div>
 
         {/* Metric 3: Focus / Pomodoro */}
         <div
           onClick={() => setActiveView('pomodoro')}
-          className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-800/40 transition cursor-pointer group"
+          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-800/40 transition cursor-pointer group"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-semibold">تمرکز امروز</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-950/60 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition">
-              <Timer className="w-4 h-4" />
+          <div className="flex items-center justify-between text-slate-400 mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold">تمرکز امروز</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-950/60 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition">
+              <Timer className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-100">
+          <div className="flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-3xl font-extrabold text-slate-100">
               {settings.persianDigits ? toPersianDigits(focusTimeDisplay) : focusTimeDisplay}
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">
-            {settings.persianDigits ? toPersianDigits(todayPomodoros.length) : todayPomodoros.length} پومودورو تکمیل شده
+          <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2.5 sm:mt-3">
+            {settings.persianDigits ? toPersianDigits(todayPomodoros.length) : todayPomodoros.length} سشن تمرکز
           </p>
         </div>
 
         {/* Metric 4: Habits */}
         <div
           onClick={() => setActiveView('habits')}
-          className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-amber-800/40 transition cursor-pointer group"
+          className="p-3.5 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-amber-800/40 transition cursor-pointer group"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-semibold">عادت‌های روزانه</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-950/60 text-amber-400 flex items-center justify-center group-hover:scale-105 transition">
-              <Flame className="w-4 h-4" />
+          <div className="flex items-center justify-between text-slate-400 mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold">عادت‌ها</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-amber-950/60 text-amber-400 flex items-center justify-center group-hover:scale-105 transition">
+              <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-100">
+          <div className="flex items-baseline gap-1.5 sm:gap-2">
+            <span className="text-xl sm:text-3xl font-extrabold text-slate-100">
               {settings.persianDigits ? toPersianDigits(todayHabitsDoneCount) : todayHabitsDoneCount}
             </span>
-            <span className="text-xs text-slate-400">
-              از {settings.persianDigits ? toPersianDigits(allHabits.length) : allHabits.length} عادت
+            <span className="text-[11px] sm:text-xs text-slate-400">
+              از {settings.persianDigits ? toPersianDigits(allHabits.length) : allHabits.length}
             </span>
           </div>
-          <div className="mt-3 w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div className="mt-2.5 sm:mt-3 w-full bg-slate-800 h-1 sm:h-1.5 rounded-full overflow-hidden">
             <div
               className="bg-amber-500 h-full rounded-full transition-all duration-500"
               style={{
@@ -240,16 +234,53 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Segmented Switcher (Visible only on < lg screens) */}
+      <div className="lg:hidden flex items-center p-1 bg-slate-900/90 border border-slate-800 rounded-xl">
+        <button
+          type="button"
+          onClick={() => setMobileTab('today')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition text-center cursor-pointer ${
+            mobileTab === 'today'
+              ? 'bg-purple-600 text-white shadow'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          امروز و برنامه‌ها
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('habits_reminders')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition text-center cursor-pointer ${
+            mobileTab === 'habits_reminders'
+              ? 'bg-purple-600 text-white shadow'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          عادت‌ها و یادآورها
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('actions')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition text-center cursor-pointer ${
+            mobileTab === 'actions'
+              ? 'bg-purple-600 text-white shadow'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          دسترسی سریع
+        </button>
+      </div>
+
       {/* Main Grid: Today's Tasks & Schedule vs Quick Actions & Habits */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left 2 Columns: Today's Tasks & Today's Schedule Timeline */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`lg:col-span-2 space-y-4 sm:space-y-6 ${mobileTab !== 'today' ? 'hidden lg:block' : ''}`}>
           {/* Today's Tasks Card */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
-            <div className="flex items-center justify-between mb-4">
+          <div className="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
+            <div className="flex items-center justify-between mb-3.5 sm:mb-4">
               <div className="flex items-center gap-2">
-                <CheckSquare className="w-5 h-5 text-purple-400" />
-                <h3 className="font-bold text-slate-100 text-base">وظایف امروز</h3>
+                <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                <h3 className="font-bold text-slate-100 text-sm sm:text-base">وظایف امروز</h3>
               </div>
               <button
                 type="button"
@@ -257,7 +288,7 @@ export const DashboardView: React.FC = () => {
                 className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-medium transition cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>افزودن وظیفه</span>
+                <span>افزودن</span>
               </button>
             </div>
 
@@ -275,9 +306,9 @@ export const DashboardView: React.FC = () => {
                   <div
                     key={task.id}
                     onClick={() => setActiveView('tasks')}
-                    className="flex items-center justify-between p-3.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/40 transition cursor-pointer group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/40 transition cursor-pointer group"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                       <button
                         type="button"
                         onClick={(e) => handleToggleTask(task.id, e)}
@@ -290,7 +321,7 @@ export const DashboardView: React.FC = () => {
                         )}
                       </button>
                       <span
-                        className={`text-sm font-medium truncate ${
+                        className={`text-xs sm:text-sm font-medium truncate ${
                           task.status === 'completed' ? 'line-through text-slate-500' : 'text-slate-200'
                         }`}
                       >
@@ -298,10 +329,10 @@ export const DashboardView: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                       {task.priority && <Badge priority={task.priority} size="sm" />}
                       {task.dueTime && (
-                        <span className="text-xs text-slate-400 font-mono">
+                        <span className="text-[11px] sm:text-xs text-slate-400 font-mono">
                           {settings.persianDigits ? toPersianDigits(task.dueTime) : task.dueTime}
                         </span>
                       )}
@@ -323,11 +354,11 @@ export const DashboardView: React.FC = () => {
           </div>
 
           {/* Today's Timeline / Events */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
-            <div className="flex items-center justify-between mb-4">
+          <div className="p-4 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
+            <div className="flex items-center justify-between mb-3.5 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-indigo-400" />
-                <h3 className="font-bold text-slate-100 text-base">جدول زمانی و رویدادهای امروز</h3>
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" />
+                <h3 className="font-bold text-slate-100 text-sm sm:text-base">جدول زمانی و رویدادهای امروز</h3>
               </div>
               <button
                 type="button"
@@ -335,7 +366,7 @@ export const DashboardView: React.FC = () => {
                 className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-medium transition cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>افزودن رویداد</span>
+                <span>افزودن</span>
               </button>
             </div>
 
@@ -348,12 +379,12 @@ export const DashboardView: React.FC = () => {
                 onAction={() => openQuickAdd('event')}
               />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {todayEvents.map((evt) => (
                   <div
                     key={evt.id}
                     onClick={() => setActiveView('calendar')}
-                    className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
+                    className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/40 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
                   >
                     <div
                       className="w-1.5 self-stretch rounded-full flex-shrink-0"
@@ -361,15 +392,15 @@ export const DashboardView: React.FC = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-bold text-slate-200">{evt.title}</h4>
-                        <span className="text-xs font-mono text-purple-300">
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-200">{evt.title}</h4>
+                        <span className="text-[11px] sm:text-xs font-mono text-purple-300">
                           {settings.persianDigits ? toPersianDigits(evt.startTime) : evt.startTime} —{' '}
                           {settings.persianDigits ? toPersianDigits(evt.endTime) : evt.endTime}
                         </span>
                       </div>
-                      {evt.description && <p className="text-xs text-slate-400 mt-1">{evt.description}</p>}
+                      {evt.description && <p className="text-xs text-slate-400 mt-1 line-clamp-1">{evt.description}</p>}
                       {evt.location && (
-                        <p className="text-[11px] text-slate-500 mt-1">📍 {evt.location}</p>
+                        <p className="text-[11px] text-slate-500 mt-1 truncate">📍 {evt.location}</p>
                       )}
                     </div>
                   </div>
@@ -380,18 +411,18 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* Right 1 Column: Quick Actions, Today's Habits & Reminders */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Quick Actions Grid */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div className={`p-4 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800 ${mobileTab !== 'actions' ? 'hidden lg:block' : ''}`}>
             <h3 className="font-bold text-slate-100 text-sm mb-3">دسترسی سریع</h3>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => openQuickAdd('task')}
                 className="p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-800 hover:border-purple-800/50 flex flex-col items-center text-center transition cursor-pointer"
               >
                 <CheckSquare className="w-5 h-5 text-purple-400 mb-1.5" />
-                <span className="text-xs font-semibold text-slate-200">وظیفه جدید</span>
+                <span className="text-xs font-semibold text-slate-200">وظیفه</span>
               </button>
 
               <button
@@ -400,7 +431,7 @@ export const DashboardView: React.FC = () => {
                 className="p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-800 hover:border-indigo-800/50 flex flex-col items-center text-center transition cursor-pointer"
               >
                 <CalendarIcon className="w-5 h-5 text-indigo-400 mb-1.5" />
-                <span className="text-xs font-semibold text-slate-200">رویداد تقویم</span>
+                <span className="text-xs font-semibold text-slate-200">رویداد</span>
               </button>
 
               <button
@@ -409,7 +440,7 @@ export const DashboardView: React.FC = () => {
                 className="p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-800 hover:border-blue-800/50 flex flex-col items-center text-center transition cursor-pointer"
               >
                 <FolderKanban className="w-5 h-5 text-blue-400 mb-1.5" />
-                <span className="text-xs font-semibold text-slate-200">پروژه جدید</span>
+                <span className="text-xs font-semibold text-slate-200">پروژه</span>
               </button>
 
               <button
@@ -418,7 +449,7 @@ export const DashboardView: React.FC = () => {
                 className="p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-800 hover:border-emerald-800/50 flex flex-col items-center text-center transition cursor-pointer"
               >
                 <Target className="w-5 h-5 text-emerald-400 mb-1.5" />
-                <span className="text-xs font-semibold text-slate-200">هدف جدید</span>
+                <span className="text-xs font-semibold text-slate-200">هدف</span>
               </button>
 
               <button
@@ -436,16 +467,16 @@ export const DashboardView: React.FC = () => {
                 className="p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-800 hover:border-rose-800/50 flex flex-col items-center text-center transition cursor-pointer"
               >
                 <Flame className="w-5 h-5 text-rose-400 mb-1.5" />
-                <span className="text-xs font-semibold text-slate-200">عادت جدید</span>
+                <span className="text-xs font-semibold text-slate-200">عادت</span>
               </button>
             </div>
           </div>
 
           {/* Today's Habits Tracker */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
-            <div className="flex items-center justify-between mb-4">
+          <div className={`p-4 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800 ${mobileTab !== 'habits_reminders' ? 'hidden lg:block' : ''}`}>
+            <div className="flex items-center justify-between mb-3.5 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Flame className="w-5 h-5 text-amber-400" />
+                <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
                 <h3 className="font-bold text-slate-100 text-sm">عادت‌های امروز</h3>
               </div>
               <button
@@ -466,7 +497,7 @@ export const DashboardView: React.FC = () => {
                 onAction={() => openQuickAdd('habit')}
               />
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {allHabits.map((habit) => {
                   const isDone = allHabitLogs.some((l) => l.habitId === habit.id && l.date === todayIso && l.completed);
                   const streak = db.getHabitStreak(habit.id);
@@ -503,10 +534,10 @@ export const DashboardView: React.FC = () => {
           </div>
 
           {/* Active Reminders Card */}
-          <div className="p-5 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800">
-            <div className="flex items-center justify-between mb-4">
+          <div className={`p-4 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800 ${mobileTab !== 'habits_reminders' ? 'hidden lg:block' : ''}`}>
+            <div className="flex items-center justify-between mb-3.5 sm:mb-4">
               <div className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-amber-400" />
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
                 <h3 className="font-bold text-slate-100 text-sm">یادآورهای فعال</h3>
               </div>
               <button
@@ -532,7 +563,7 @@ export const DashboardView: React.FC = () => {
                   <div
                     key={rem.id}
                     onClick={() => setActiveView('reminders')}
-                    className="p-3 rounded-xl bg-slate-800/40 border border-slate-800 flex items-center justify-between hover:bg-slate-800 transition cursor-pointer"
+                    className="p-2.5 sm:p-3 rounded-xl bg-slate-800/40 border border-slate-800 flex items-center justify-between hover:bg-slate-800 transition cursor-pointer"
                   >
                     <div className="text-xs font-medium text-slate-200 truncate">{rem.title}</div>
                     <span className="text-[11px] text-purple-300 font-mono flex-shrink-0">

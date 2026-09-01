@@ -128,12 +128,12 @@ export const CalendarView: React.FC = () => {
   };
 
   return (
-    <div id="calendar-view" className="space-y-6 max-w-7xl mx-auto" dir="rtl">
+    <div id="calendar-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto" dir="rtl">
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-            <CalendarIcon className="w-6 h-6 text-purple-400" />
+          <h2 className="text-lg sm:text-xl font-bold text-slate-100 flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
             <span>تقویم جامع خورشیدی</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
@@ -141,36 +141,36 @@ export const CalendarView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2">
           {/* Month & Year Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-2xl">
+          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
               title="ماه قبل"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            <span className="text-xs sm:text-sm font-bold text-slate-200 px-3 min-w-[130px] text-center">
+            <span className="text-xs sm:text-sm font-bold text-slate-200 px-2 min-w-[110px] sm:min-w-[130px] text-center">
               {monthNames[currentMonth - 1]} {settings.persianDigits ? toPersianDigits(currentYear) : currentYear}
             </span>
 
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
               title="ماه بعد"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
           <button
             type="button"
             onClick={handleToday}
-            className="px-3 py-2 rounded-xl bg-purple-950/60 hover:bg-purple-900 border border-purple-800/60 text-purple-300 text-xs font-semibold transition cursor-pointer"
+            className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-purple-950/60 hover:bg-purple-900 border border-purple-800/60 text-purple-300 text-xs font-semibold transition cursor-pointer"
           >
             امروز
           </button>
@@ -178,24 +178,24 @@ export const CalendarView: React.FC = () => {
           <button
             type="button"
             onClick={() => openQuickAdd('event')}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-medium shadow-md shadow-purple-950/40 transition cursor-pointer active:scale-98"
+            className="flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-medium shadow-md shadow-purple-950/40 transition cursor-pointer active:scale-98"
           >
-            <Plus className="w-4 h-4" />
-            <span>رویداد جدید</span>
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>رویداد</span>
           </button>
         </div>
       </div>
 
       {/* Main Grid Layout: Calendar Matrix + Day Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Calendar Month Grid */}
-        <div className="lg:col-span-2 p-5 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
+        <div className="lg:col-span-2 p-3.5 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 sm:space-y-4">
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 pb-2 border-b border-slate-800">
+          <div className="grid grid-cols-7 gap-1 text-center font-bold text-[11px] sm:text-xs text-slate-400 pb-2 border-b border-slate-800">
             {weekDayNames.map((d, i) => (
               <div
                 key={d}
-                className={`py-2 rounded-lg ${i === 6 ? 'text-rose-400' : 'text-slate-400'}`}
+                className={`py-1.5 sm:py-2 rounded-lg ${i === 6 ? 'text-rose-400' : 'text-slate-400'}`}
               >
                 {d}
               </div>
@@ -206,7 +206,7 @@ export const CalendarView: React.FC = () => {
           <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
             {/* Empty slots for offset */}
             {Array.from({ length: firstDayOffset }).map((_, idx) => (
-              <div key={`offset_${idx}`} className="h-16 sm:h-20 rounded-xl bg-slate-900/20" />
+              <div key={`offset_${idx}`} className="h-12 sm:h-20 rounded-lg sm:rounded-xl bg-slate-900/20" />
             ))}
 
             {/* Days of current month */}
@@ -231,7 +231,7 @@ export const CalendarView: React.FC = () => {
                 <div
                   key={dayNum}
                   onClick={() => handleSelectDay(dayNum)}
-                  className={`h-16 sm:h-20 p-1.5 sm:p-2 rounded-xl border flex flex-col justify-between transition cursor-pointer relative overflow-hidden ${
+                  className={`h-12 sm:h-20 p-1 sm:p-2 rounded-lg sm:rounded-xl border flex flex-col justify-between transition cursor-pointer relative overflow-hidden ${
                     isSelected
                       ? 'bg-purple-950/70 border-purple-500 ring-1 ring-purple-500'
                       : isToday
@@ -241,9 +241,9 @@ export const CalendarView: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <span
-                      className={`text-xs font-bold font-mono ${
+                      className={`text-[11px] sm:text-xs font-bold font-mono ${
                         isToday
-                          ? 'w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center'
+                          ? 'w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] sm:text-xs'
                           : isFriday
                           ? 'text-rose-400'
                           : 'text-slate-200'
@@ -253,7 +253,7 @@ export const CalendarView: React.FC = () => {
                     </span>
 
                     {(dayEvents.length > 0 || dayTasks.length > 0) && (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5 sm:gap-1">
                         {dayEvents.length > 0 && (
                           <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
                         )}
@@ -264,22 +264,22 @@ export const CalendarView: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Day Content Badges Preview */}
-                  <div className="space-y-0.5 overflow-hidden">
-                    {dayEvents.slice(0, 1).map((ev) => (
+                  {/* Desktop Preview */}
+                  <div className="hidden sm:block space-y-0.5 mt-1 overflow-hidden">
+                    {dayEvents.slice(0, 1).map((evt) => (
                       <div
-                        key={ev.id}
-                        className="text-[9px] truncate px-1 py-0.2 rounded bg-purple-900/60 text-purple-200 font-sans"
+                        key={evt.id}
+                        className="text-[10px] px-1 py-0.5 rounded truncate bg-purple-900/60 text-purple-200 border border-purple-700/30"
                       >
-                        {ev.title}
+                        {evt.title}
                       </div>
                     ))}
-                    {dayTasks.slice(0, 1).map((t) => (
+                    {dayTasks.slice(0, 1).map((tsk) => (
                       <div
-                        key={t.id}
-                        className="text-[9px] truncate px-1 py-0.2 rounded bg-emerald-900/60 text-emerald-200 font-sans"
+                        key={tsk.id}
+                        className="text-[10px] px-1 py-0.5 rounded truncate bg-slate-700/60 text-slate-300"
                       >
-                        {t.title}
+                        ✓ {tsk.title}
                       </div>
                     ))}
                   </div>
@@ -290,7 +290,7 @@ export const CalendarView: React.FC = () => {
         </div>
 
         {/* Selected Day Agenda Sidebar */}
-        <div className="p-5 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-4">
+        <div className="p-4 sm:p-6 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-4">
           <div>
             <div className="pb-3 mb-4 border-b border-slate-800 flex items-center justify-between">
               <div>

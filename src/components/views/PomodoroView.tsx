@@ -77,39 +77,39 @@ export const PomodoroView: React.FC = () => {
       {/* Main Pomodoro Card */}
       <div className="p-6 sm:p-10 rounded-3xl bg-slate-900/90 border border-slate-800 flex flex-col items-center shadow-xl relative overflow-hidden">
         {/* Mode Selector Tabs */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-800 border border-slate-700 mb-8 z-10">
+        <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-800 border border-slate-700 mb-6 sm:mb-8 z-10 w-full sm:w-auto overflow-x-auto justify-center">
           <button
             type="button"
             onClick={() => setPomodoroMode('focus')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               pomodoroMode === 'focus'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-950/40'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            تمرکز عمیق ({settings.persianDigits ? toPersianDigits(settings.pomodoroFocusMinutes) : settings.pomodoroFocusMinutes} دقیقه)
+            تمرکز ({settings.persianDigits ? toPersianDigits(settings.pomodoroFocusMinutes) : settings.pomodoroFocusMinutes}د)
           </button>
           <button
             type="button"
             onClick={() => setPomodoroMode('short_break')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               pomodoroMode === 'short_break'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            استراحت کوتاه ({settings.persianDigits ? toPersianDigits(settings.pomodoroShortBreakMinutes) : settings.pomodoroShortBreakMinutes} دقیقه)
+            استراحت کوتاه ({settings.persianDigits ? toPersianDigits(settings.pomodoroShortBreakMinutes) : settings.pomodoroShortBreakMinutes}د)
           </button>
           <button
             type="button"
             onClick={() => setPomodoroMode('long_break')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
               pomodoroMode === 'long_break'
                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-950/40'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            استراحت بلند ({settings.persianDigits ? toPersianDigits(settings.pomodoroLongBreakMinutes) : settings.pomodoroLongBreakMinutes} دقیقه)
+            استراحت بلند ({settings.persianDigits ? toPersianDigits(settings.pomodoroLongBreakMinutes) : settings.pomodoroLongBreakMinutes}د)
           </button>
         </div>
 

@@ -10,6 +10,38 @@
   }
 }
 
+/* ==========================================================================
+   MINIMAL MOBILE TYPOGRAPHY & SPACING OPTIMIZATIONS (Phone Screens < 640px)
+   Keeps desktop 100% intact while making mobile sleeker, lighter and minimal.
+   ========================================================================== */
+@media (max-width: 639px) {
+  /* Slightly more compact base sizing for a refined, minimal look on phones */
+  html {
+    font-size: 14.5px;
+  }
+
+  /* Compact button padding & crisp borders */
+  button, input, select, textarea {
+    font-size: 0.8125rem; /* ~11.8px */
+  }
+
+  /* Elegant tight line-heights on phone */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.015em;
+  }
+
+  /* Reduce excessive paddings inside mobile cards */
+  .rounded-2xl, .rounded-3xl {
+    border-radius: 0.875rem;
+  }
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 16px;
+  }
+}
+
 /* Custom scrollbars for clean UI */
 ::-webkit-scrollbar {
   width: 6px;
@@ -32,4 +64,237 @@
 /* Smooth transitions */
 .transition-base {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   LIGHT THEME OVERRIDES (Comprehensive Support)
+   ========================================================================== */
+html.light,
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+html.light body,
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Base App Layout in Light Mode */
+html.light #planner-root,
+html.light .bg-slate-950 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Cards & Surface Containers */
+html.light .bg-slate-900,
+html.light .bg-slate-900\/95,
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/30,
+html.light .bg-slate-900\/20 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Sub-containers, nested blocks & tags */
+html.light .bg-slate-800,
+html.light .bg-slate-800\/95,
+html.light .bg-slate-800\/90,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/70,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/30 {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+/* Slate Borders */
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/60,
+html.light .border-slate-800\/40,
+html.light .border-slate-700,
+html.light .border-slate-700\/80,
+html.light .border-slate-700\/60,
+html.light .border-slate-700\/50,
+html.light .border-slate-700\/40 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Typography in Light Mode */
+html.light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* Hover States */
+html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-800\/60:hover,
+html.light .hover\:bg-slate-700:hover,
+html.light .hover\:bg-slate-700\/60:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .hover\:text-slate-200:hover,
+html.light .hover\:text-slate-100:hover {
+  color: #0f172a !important;
+}
+
+/* Inputs, Textareas, Selects */
+html.light input[type="text"],
+html.light input[type="number"],
+html.light input[type="date"],
+html.light input[type="time"],
+html.light input[type="datetime-local"],
+html.light textarea,
+html.light select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Accent Badges & Tinted Sections (Purple) */
+html.light .bg-purple-950,
+html.light .bg-purple-950\/90,
+html.light .bg-purple-950\/80,
+html.light .bg-purple-950\/70,
+html.light .bg-purple-950\/60,
+html.light .bg-purple-950\/50,
+html.light .bg-purple-950\/40 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+}
+
+html.light .text-purple-300,
+html.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+html.light .border-purple-800,
+html.light .border-purple-800\/60,
+html.light .border-purple-800\/50,
+html.light .border-purple-800\/40,
+html.light .border-purple-700,
+html.light .border-purple-700\/60,
+html.light .border-purple-700\/40 {
+  border-color: #ddd6fe !important;
+}
+
+/* Accent Badges (Emerald / Green) */
+html.light .bg-emerald-950,
+html.light .bg-emerald-950\/80,
+html.light .bg-emerald-950\/60,
+html.light .bg-emerald-950\/40 {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+}
+
+html.light .text-emerald-300,
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html.light .border-emerald-800,
+html.light .border-emerald-800\/60,
+html.light .border-emerald-700 {
+  border-color: #a7f3d0 !important;
+}
+
+/* Accent Badges (Rose / Red) */
+html.light .bg-rose-950,
+html.light .bg-rose-950\/80,
+html.light .bg-rose-950\/60,
+html.light .bg-rose-950\/40 {
+  background-color: #fff1f2 !important;
+  color: #9f1239 !important;
+}
+
+html.light .text-rose-300,
+html.light .text-rose-400 {
+  color: #e11d48 !important;
+}
+
+html.light .border-rose-800,
+html.light .border-rose-800\/60 {
+  border-color: #fecdd3 !important;
+}
+
+/* Accent Badges (Amber / Orange) */
+html.light .bg-amber-950,
+html.light .bg-amber-950\/80,
+html.light .bg-amber-950\/60,
+html.light .bg-amber-950\/40 {
+  background-color: #fffbeb !important;
+  color: #92400e !important;
+}
+
+html.light .text-amber-300,
+html.light .text-amber-400 {
+  color: #d97706 !important;
+}
+
+html.light .border-amber-800,
+html.light .border-amber-800\/60 {
+  border-color: #fde68a !important;
+}
+
+/* Accent Badges (Indigo / Blue) */
+html.light .bg-indigo-950,
+html.light .bg-indigo-950\/80,
+html.light .bg-indigo-950\/60,
+html.light .bg-indigo-950\/40 {
+  background-color: #eef2ff !important;
+  color: #3730a3 !important;
+}
+
+html.light .text-indigo-300,
+html.light .text-indigo-400 {
+  color: #4f46e5 !important;
+}
+
+html.light .border-indigo-800,
+html.light .border-indigo-800\/60 {
+  border-color: #c7d2fe !important;
+}
+
+/* Modal Backdrops & Shadows in Light Mode */
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/70,
+html.light .bg-black\/60,
+html.light .bg-black\/70 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
+
+html.light .shadow-xl,
+html.light .shadow-2xl,
+html.light .shadow-lg {
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04) !important;
 }

@@ -23,6 +23,8 @@ import {
   Database,
   Settings as SettingsIcon,
   Sparkles,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -43,14 +45,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
     }
   };
 
-  const { activeView, setActiveView, openQuickAdd } = useApp();
+  const { activeView, setActiveView, openQuickAdd, settings, updateSettings } = useApp();
 
-  const mainTabs: { id: ActiveView; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'dashboard', label: 'داشبورد', icon: LayoutDashboard },
-    { id: 'tasks', label: 'وظایف', icon: CheckSquare },
-    { id: 'calendar', label: 'تقویم', icon: CalendarIcon },
-    { id: 'daily_planner', label: 'برنامه روزانه', icon: CalendarDays },
-  ];
+  const toggleTheme = () => {
+    updateSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark' });
+  };
 
   const allViews: { id: ActiveView; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'dashboard', label: 'داشبورد', icon: LayoutDashboard },
@@ -75,53 +74,80 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
 
   return (
     <>
-      {/* Bottom Navigation Bar for Mobile */}
+      {/* Bottom Navigation Bar for Mobile: 5 symmetric items with + strictly centered */}
       <div
         id="mobile-bottom-nav"
-        className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-40 flex items-center justify-around px-2"
+        className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-40 grid grid-cols-5 items-center px-1"
         dir="rtl"
       >
-        {mainTabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeView === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => {
-                setActiveView(tab.id);
-                handleSetDrawerOpen(false);
-              }}
-              className={`flex flex-col items-center justify-center gap-1 w-14 h-full transition cursor-pointer ${
-                isActive ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] truncate">{tab.label}</span>
-            </button>
-          );
-        })}
-
-        {/* Center Floating Quick Add Button */}
+        {/* 1. Dashboard */}
         <button
           type="button"
-          onClick={() => openQuickAdd()}
-          className="relative -top-5 w-12 h-12 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center shadow-lg shadow-purple-900/50 border-2 border-slate-900 transition active:scale-95 cursor-pointer"
-          title="ایجاد سریع"
+          onClick={() => {
+            setActiveView('dashboard');
+            handleSetDrawerOpen(false);
+          }}
+          className={`flex flex-col items-center justify-center gap-1 h-full transition cursor-pointer ${
+            activeView === 'dashboard' ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
         >
-          <Plus className="w-6 h-6 stroke-[2.5]" />
+          <LayoutDashboard className="w-5 h-5" />
+          <span className="text-[10px] truncate">داشبورد</span>
         </button>
 
-        {/* More Drawer Button */}
+        {/* 2. Tasks */}
+        <button
+          type="button"
+          onClick={() => {
+            setActiveView('tasks');
+            handleSetDrawerOpen(false);
+          }}
+          className={`flex flex-col items-center justify-center gap-1 h-full transition cursor-pointer ${
+            activeView === 'tasks' ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <CheckSquare className="w-5 h-5" />
+          <span className="text-[10px] truncate">وظایف</span>
+        </button>
+
+        {/* 3. Center Quick Add (+) Button */}
+        <div className="flex items-center justify-center">
+          <button
+            id="mobile-center-add-btn"
+            type="button"
+            onClick={() => openQuickAdd()}
+            className="relative -top-3.5 w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-700 to-purple-500 hover:from-purple-600 hover:to-purple-400 text-white flex items-center justify-center shadow-lg shadow-purple-900/50 border-2 border-slate-900 transition active:scale-90 cursor-pointer"
+            title="ایجاد سریع (+)"
+          >
+            <Plus className="w-6 h-6 stroke-[2.5]" />
+          </button>
+        </div>
+
+        {/* 4. Calendar */}
+        <button
+          type="button"
+          onClick={() => {
+            setActiveView('calendar');
+            handleSetDrawerOpen(false);
+          }}
+          className={`flex flex-col items-center justify-center gap-1 h-full transition cursor-pointer ${
+            activeView === 'calendar' ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <CalendarIcon className="w-5 h-5" />
+          <span className="text-[10px] truncate">تقویم</span>
+        </button>
+
+        {/* 5. More Menu */}
         <button
           type="button"
           onClick={() => handleSetDrawerOpen(!isDrawerOpen)}
-          className={`flex flex-col items-center justify-center gap-1 w-14 h-full transition cursor-pointer ${
+          className={`flex flex-col items-center justify-center gap-1 h-full transition cursor-pointer ${
             isDrawerOpen ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Menu className="w-5 h-5" />
-          <span className="text-[10px]">بیشتر</span>
+          <span className="text-[10px] truncate">بیشتر</span>
         </button>
       </div>
 
@@ -145,20 +171,37 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
               className="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl"
             >
               {/* Drawer Header */}
-              <div className="h-16 px-5 flex items-center justify-between border-b border-slate-800">
+              <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center">
                     <Sparkles className="w-4 h-4" />
                   </div>
-                  <span className="font-extrabold text-slate-100">پلنر حرفه‌ای</span>
+                  <span className="font-extrabold text-slate-100">منوی بخش‌های پلنر</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleSetDrawerOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+
+                <div className="flex items-center gap-1">
+                  {/* Quick Theme Toggle inside Mobile Drawer */}
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
+                    title={settings.theme === 'dark' ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
+                  >
+                    {settings.theme === 'dark' ? (
+                      <Sun className="w-5 h-5 text-amber-400" />
+                    ) : (
+                      <Moon className="w-5 h-5 text-purple-400" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSetDrawerOpen(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Drawer Grid Navigation */}
@@ -187,9 +230,17 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
                 })}
               </div>
 
-              {/* Drawer Footer */}
-              <div className="p-4 border-t border-slate-800 bg-slate-900/80 text-center">
-                <p className="text-[11px] text-slate-400">پلنر — برنامه‌ریزی هوشمند، زندگی بهتر</p>
+              {/* Drawer Footer with Theme & Status */}
+              <div className="p-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">پلنر شخصی — هوشمند و آفلاین</span>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-300 font-medium hover:bg-slate-700 transition cursor-pointer"
+                >
+                  {settings.theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-purple-400" />}
+                  <span>{settings.theme === 'dark' ? 'تم روشن' : 'تم تاریک'}</span>
+                </button>
               </div>
             </motion.div>
           </div>
@@ -198,3 +249,4 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
     </>
   );
 };
+

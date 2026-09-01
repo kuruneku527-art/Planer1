@@ -81,6 +81,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
+  // Synchronize document theme class
+  useEffect(() => {
+    const currentTheme = settings.theme || 'dark';
+    const root = document.documentElement;
+    if (currentTheme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      root.setAttribute('data-theme', 'light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+    }
+  }, [settings.theme]);
+
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'success') => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`;
     setToasts((prev) => [...prev, { id, message, type }]);
