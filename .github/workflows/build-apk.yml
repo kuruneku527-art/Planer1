@@ -12,43 +12,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. دریافت پروژه از GitHub
       - name: Checkout
         uses: actions/checkout@v5
 
-      # 2. نصب Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: 22
 
-      # 3. نصب Java 21
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
 
-      # 4. نصب وابستگی‌های پروژه
       - name: Install dependencies
         run: npm install
 
-      # 5. همگام‌سازی Capacitor با Android
       - name: Sync Capacitor Android
         run: npx cap sync android
 
-      # 6. دادن دسترسی اجرا به Gradle
       - name: Make Gradle executable
         run: chmod +x ./gradlew
         working-directory: android
 
-      # 7. ساخت APK
       - name: Build Debug APK
         run: ./gradlew assembleDebug
         working-directory: android
 
-      # 8. ذخیره APK به عنوان Artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
