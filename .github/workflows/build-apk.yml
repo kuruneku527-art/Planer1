@@ -12,50 +12,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. دریافت پروژه
       - name: Checkout
         uses: actions/checkout@v5
 
-      # 2. نصب Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: 22
 
-      # 3. نصب Java 21
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
 
-      # 4. نصب وابستگی‌های اصلی پروژه
       - name: Install project dependencies
         run: npm install
 
-      # 5. نصب Capacitor
       - name: Install Capacitor
         run: npm install --no-save @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
 
-      # 6. ساخت نسخه وب پروژه
       - name: Build web app
         run: npm run build
 
-      # 7. همگام‌سازی Capacitor با Android
+      - name: Create Capacitor config
+        run: |
+          cat > capacitor.config.ts <<'EOF'
+          import type { CapacitorConfig } from '@capacitor/cli';
+
+          const config: CapacitorConfig = {
+            appId: 'com.kuruneku.planer1',
+            appName: 'Planer1',
+            webDir: 'dist'
+          };
+
+          export default config;
+          EOF
+
+      - name: Add Android platform
+        run: npx cap add android
+
       - name: Sync Capacitor Android
         run: npx cap sync android
 
-      # 8. دادن دسترسی اجرا به Gradle
       - name: Make Gradle executable
         run: chmod +x ./gradlew
         working-directory: android
 
-      # 9. ساخت APK
       - name: Build Debug APK
         run: ./gradlew assembleDebug
         working-directory: android
 
-      # 10. آپلود APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
