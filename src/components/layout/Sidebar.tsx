@@ -123,7 +123,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, setCollapse
       dir="rtl"
     >
       {/* Brand Header */}
-      <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800/80">
+      <div
+        className="px-4 flex items-center justify-between border-b border-slate-800/80 shrink-0"
+        style={{
+          paddingTop: 'max(env(safe-area-inset-top, 0px), 0.75rem)',
+          paddingBottom: '0.75rem',
+          minHeight: 'calc(3.75rem + env(safe-area-inset-top, 0px))',
+        }}
+      >
         {!isCollapsed && (
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-900/40">

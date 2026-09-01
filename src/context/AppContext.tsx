@@ -51,10 +51,14 @@ interface AppContextType {
   setPomodoroActiveTaskId: (id?: string) => void;
   pomodoroActiveTaskTitle?: string;
   setPomodoroActiveTaskTitle: (title?: string) => void;
-  startPomodoro: (taskId?: string) => void;
+  pomodoroStrictLock: boolean;
+  setPomodoroStrictLock: (lock: boolean) => void;
+  startPomodoro: (taskId?: string, lockMode?: boolean) => void;
   pausePomodoro: () => void;
-  resetPomodoro: () => void;
+  resetPomodoro: (overrideMinutes?: number) => void;
+  setPomodoroDuration: (minutes: number) => void;
   skipPomodoro: () => void;
+  unlockPomodoroFocus: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -76,6 +80,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [pomodoroIsRunning, setPomodoroIsRunning] = useState(false);
   const [pomodoroActiveTaskId, setPomodoroActiveTaskId] = useState<string | undefined>(undefined);
   const [pomodoroActiveTaskTitle, setPomodoroActiveTaskTitle] = useState<string | undefined>(undefined);
+  const [pomodoroStrictLock, setPomodoroStrictLock] = useState<boolean>(false);
 
   const refreshDb = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
@@ -134,7 +139,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [pomodoroMode, pomodoroIsRunning]);
 
   // Pomodoro Timer Controls
-  const startPomodoro = useCallback((taskId?: string) => {
+  const startPomodoro = useCallback((taskId?: string, lockMode: boolean = false) => {
     if (taskId) {
       const task = db.getTask(taskId);
       if (task) {
@@ -142,6 +147,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setPomodoroActiveTaskTitle(task.title);
       }
     }
+    setPomodoroStrictLock(lockMode);
     if (settings.soundEnabled || settings.soundEffectsEnabled) {
       soundEffects.playTimerStart(settings.soundVolume);
     }
@@ -152,24 +158,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setPomodoroIsRunning(false);
   }, []);
 
-  const resetPomodoro = useCallback(() => {
+  const setPomodoroDuration = useCallback((minutes: number) => {
+    const updated = db.updateSettings({ pomodoroFocusMinutes: minutes });
+    setSettings(updated);
     setPomodoroIsRunning(false);
-    let dur = settings.pomodoroFocusMinutes || 25;
-    if (pomodoroMode === 'short_break') dur = settings.pomodoroShortBreakMinutes || 5;
-    if (pomodoroMode === 'long_break') dur = settings.pomodoroLongBreakMinutes || 15;
+    setPomodoroStrictLock(false);
+    setPomodoroMode('focus');
+    setPomodoroSecondsLeft(minutes * 60);
+  }, []);
+
+  const resetPomodoro = useCallback((overrideMinutes?: number) => {
+    setPomodoroIsRunning(false);
+    setPomodoroStrictLock(false);
+    const dur = overrideMinutes ?? settings.pomodoroFocusMinutes ?? 25;
+    setPomodoroMode('focus');
     setPomodoroSecondsLeft(dur * 60);
-  }, [pomodoroMode, settings.pomodoroFocusMinutes, settings.pomodoroShortBreakMinutes, settings.pomodoroLongBreakMinutes]);
+  }, [settings.pomodoroFocusMinutes]);
 
   const skipPomodoro = useCallback(() => {
     setPomodoroIsRunning(false);
-    if (pomodoroMode === 'focus') {
-      setPomodoroMode('short_break');
-      setPomodoroSecondsLeft((settings.pomodoroShortBreakMinutes || 5) * 60);
-    } else {
-      setPomodoroMode('focus');
-      setPomodoroSecondsLeft((settings.pomodoroFocusMinutes || 25) * 60);
-    }
-  }, [pomodoroMode, settings.pomodoroFocusMinutes, settings.pomodoroShortBreakMinutes]);
+    setPomodoroStrictLock(false);
+    setPomodoroMode('focus');
+    setPomodoroSecondsLeft((settings.pomodoroFocusMinutes || 25) * 60);
+  }, [settings.pomodoroFocusMinutes]);
+
+  const unlockPomodoroFocus = useCallback(() => {
+    setPomodoroStrictLock(false);
+  }, []);
 
   // Global Pomodoro countdown ticker
   useEffect(() => {
@@ -180,21 +195,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (prev <= 1) {
             // Completed!
             setPomodoroIsRunning(false);
+            setPomodoroStrictLock(false);
             if (settings.soundEnabled || settings.soundEffectsEnabled) {
               soundEffects.playCompletionChime(settings.soundVolume);
             }
 
             // Log session in DB
-            const duration =
-              pomodoroMode === 'focus'
-                ? settings.pomodoroFocusMinutes || 25
-                : pomodoroMode === 'short_break'
-                ? settings.pomodoroShortBreakMinutes || 5
-                : settings.pomodoroLongBreakMinutes || 15;
+            const duration = settings.pomodoroFocusMinutes || 25;
 
             db.savePomodoroSession({
               id: `pomo_${Date.now()}`,
-              mode: pomodoroMode,
+              mode: 'focus',
               durationMinutes: duration,
               completedAt: new Date().toISOString(),
               taskId: pomodoroActiveTaskId,
@@ -202,53 +213,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             });
 
             // Also record time entry for productivity analytics
-            if (pomodoroMode === 'focus') {
-              const now = new Date();
-              const start = new Date(now.getTime() - duration * 60 * 1000);
-              const startHH = String(start.getHours()).padStart(2, '0');
-              const startMM = String(start.getMinutes()).padStart(2, '0');
-              const endHH = String(now.getHours()).padStart(2, '0');
-              const endMM = String(now.getMinutes()).padStart(2, '0');
+            const now = new Date();
+            const start = new Date(now.getTime() - duration * 60 * 1000);
+            const startHH = String(start.getHours()).padStart(2, '0');
+            const startMM = String(start.getMinutes()).padStart(2, '0');
+            const endHH = String(now.getHours()).padStart(2, '0');
+            const endMM = String(now.getMinutes()).padStart(2, '0');
 
-              db.saveTimeEntry({
-                id: `time_${Date.now()}`,
-                title: pomodoroActiveTaskTitle || 'جلسه تمرکز پومودورو',
-                category: 'work',
-                date: now.toISOString().split('T')[0],
-                startTime: `${startHH}:${startMM}`,
-                endTime: `${endHH}:${endMM}`,
-                durationMinutes: duration,
-                linkedTaskId: pomodoroActiveTaskId,
-                createdAt: now.toISOString(),
-              });
-            }
+            db.saveTimeEntry({
+              id: `time_${Date.now()}`,
+              title: pomodoroActiveTaskTitle || 'جلسه تمرکز عمیق',
+              category: 'work',
+              date: now.toISOString().split('T')[0],
+              startTime: `${startHH}:${startMM}`,
+              endTime: `${endHH}:${endMM}`,
+              durationMinutes: duration,
+              linkedTaskId: pomodoroActiveTaskId,
+              createdAt: now.toISOString(),
+            });
 
             db.saveNotification({
               id: `notif_${Date.now()}`,
-              title: pomodoroMode === 'focus' ? 'جلسه تمرکز پایان یافت' : 'زمان استراحت پایان یافت',
-              message:
-                pomodoroMode === 'focus'
-                  ? 'آفرین! یک جلسه تمرکز پومودورو با موفقیت تکمیل شد.'
-                  : 'استراحت تمام شد. آماده جلسه تمرکز بعدی هستید؟',
+              title: 'جلسه تمرکز پایان یافت',
+              message: 'آفرین! یک جلسه تمرکز با موفقیت تکمیل شد.',
               type: 'system',
               read: false,
               targetView: 'pomodoro',
               timestamp: new Date().toISOString(),
             });
 
-            showToast(
-              pomodoroMode === 'focus' ? 'تبریک! جلسه تمرکز با موفقیت تمام شد.' : 'زمان استراحت پایان یافت.',
-              'success'
-            );
+            showToast('تبریک! جلسه تمرکز با موفقیت به پایان رسید.', 'success');
 
-            // Next mode
-            if (pomodoroMode === 'focus') {
-              setPomodoroMode('short_break');
-              return (settings.pomodoroShortBreakMinutes || 5) * 60;
-            } else {
-              setPomodoroMode('focus');
-              return (settings.pomodoroFocusMinutes || 25) * 60;
-            }
+            setPomodoroMode('focus');
+            return (settings.pomodoroFocusMinutes || 25) * 60;
           }
           return prev - 1;
         });
@@ -257,7 +254,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [pomodoroIsRunning, pomodoroMode, pomodoroActiveTaskId, pomodoroActiveTaskTitle, settings, showToast]);
+  }, [pomodoroIsRunning, pomodoroActiveTaskId, pomodoroActiveTaskTitle, settings, showToast]);
 
   // Listen to DB update events across browser tabs/components
   useEffect(() => {
@@ -345,10 +342,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setPomodoroActiveTaskId,
         pomodoroActiveTaskTitle,
         setPomodoroActiveTaskTitle,
+        pomodoroStrictLock,
+        setPomodoroStrictLock,
         startPomodoro,
         pausePomodoro,
         resetPomodoro,
+        setPomodoroDuration,
         skipPomodoro,
+        unlockPomodoroFocus,
       }}
     >
       {children}

@@ -319,17 +319,21 @@ export const QuickAddModal: React.FC = () => {
     { id: 'reminder', label: 'یادآور', icon: Bell },
   ];
 
+  const fieldInputClass =
+    'h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition';
+  const labelClass = 'block text-xs font-semibold text-slate-300 mb-1.5';
+
   return (
     <Modal
       isOpen={quickAddOpen}
       onClose={() => setQuickAddOpen(false)}
       title="ایجاد سریع آیتم جدید"
       subtitle="آیتم مورد نظرتان را به سرعت به برنامه‌ریزی خود اضافه کنید"
-      maxWidth="xl"
+      maxWidth="2xl"
     >
       <div className="space-y-5" dir="rtl">
-        {/* Horizontal Navigation Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-800">
+        {/* Equal-sized Navigation Tabs on Desktop */}
+        <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 p-1 rounded-2xl bg-slate-800/40 border border-slate-800">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -338,14 +342,14 @@ export const QuickAddModal: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                className={`flex items-center justify-center gap-1.5 py-2 px-1.5 rounded-xl text-xs font-medium transition cursor-pointer w-full text-center ${
                   isActive
                     ? 'bg-purple-600 text-white shadow-md shadow-purple-900/30'
-                    : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
+                <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="truncate">{tab.label}</span>
               </button>
             );
           })}
@@ -355,24 +359,24 @@ export const QuickAddModal: React.FC = () => {
         {activeTab === 'task' && (
           <form onSubmit={handleSubmitTask} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان وظیفه *</label>
+              <label className={labelClass}>عنوان وظیفه *</label>
               <input
                 type="text"
                 required
                 value={taskTitle}
                 onChange={(e) => setTaskTitle(e.target.value)}
                 placeholder="مثلاً: طراحی اولیه صفحه اصلی..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
+                className={fieldInputClass}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">اولویت</label>
+                <label className={labelClass}>اولویت</label>
                 <select
                   value={taskPriority}
                   onChange={(e) => setTaskPriority(e.target.value as Priority)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 >
                   <option value="low">کم (سبز)</option>
                   <option value="medium">متوسط (آبی)</option>
@@ -382,11 +386,11 @@ export const QuickAddModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">پروژه مرتبط</label>
+                <label className={labelClass}>پروژه مرتبط</label>
                 <select
                   value={taskProjectId}
                   onChange={(e) => setTaskProjectId(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 >
                   <option value="">بدون پروژه (وظیفه آزاد)</option>
                   {existingProjects.map((p) => (
@@ -398,41 +402,41 @@ export const QuickAddModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">تاریخ سررسید (مهلت)</label>
+                <label className={labelClass}>تاریخ سررسید (مهلت)</label>
                 <input
                   type="date"
                   value={taskDueDate}
                   onChange={(e) => setTaskDueDate(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">ساعت مشخص</label>
+                <label className={labelClass}>ساعت مشخص</label>
                 <input
                   type="time"
                   value={taskDueTime}
                   onChange={(e) => setTaskDueTime(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">توضیحات تکمیلی</label>
+              <label className={labelClass}>توضیحات تکمیلی</label>
               <textarea
                 rows={2}
                 value={taskDesc}
                 onChange={(e) => setTaskDesc(e.target.value)}
                 placeholder="توضیحات و جزئیات انجام وظیفه..."
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition resize-none"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition resize-none"
               />
             </div>
 
             {/* Subtasks */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">زیر‌کارها (Checklist)</label>
+              <label className={labelClass}>زیر‌کارها (Checklist)</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -445,14 +449,15 @@ export const QuickAddModal: React.FC = () => {
                     }
                   }}
                   placeholder="افزودن زیروظیفه..."
-                  className="flex-1 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
+                  className="h-10 flex-1 px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
                 />
                 <button
                   type="button"
                   onClick={handleAddSubtask}
-                  className="px-3 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium transition cursor-pointer"
+                  className="h-10 px-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1"
                 >
                   <Plus className="w-4 h-4" />
+                  <span>افزودن</span>
                 </button>
               </div>
 
@@ -461,7 +466,7 @@ export const QuickAddModal: React.FC = () => {
                   {subtasks.map((st, idx) => (
                     <div
                       key={st.id}
-                      className="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-xs text-slate-200"
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-200"
                     >
                       <span>{st.title}</span>
                       <button
@@ -477,12 +482,20 @@ export const QuickAddModal: React.FC = () => {
               )}
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setQuickAddOpen(false)}
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
+              >
+                انصراف
+              </button>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                ثبت وظیفه
+                <Plus className="w-4 h-4" />
+                <span>ثبت وظیفه</span>
               </button>
             </div>
           </form>
@@ -492,81 +505,102 @@ export const QuickAddModal: React.FC = () => {
         {activeTab === 'event' && (
           <form onSubmit={handleSubmitEvent} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان رویداد یا جلسه *</label>
+              <label className={labelClass}>عنوان رویداد یا جلسه *</label>
               <input
                 type="text"
                 required
                 value={eventTitle}
                 onChange={(e) => setEventTitle(e.target.value)}
                 placeholder="مثلاً: جلسه هفتگی تیم محصول..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
+                className={fieldInputClass}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">تاریخ</label>
+                <label className={labelClass}>تاریخ</label>
                 <input
                   type="date"
                   value={eventDate}
                   onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">ساعت شروع</label>
+                <label className={labelClass}>ساعت شروع</label>
                 <input
                   type="time"
                   value={eventStartTime}
                   onChange={(e) => setEventStartTime(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">ساعت پایان</label>
+                <label className={labelClass}>ساعت پایان</label>
                 <input
                   type="time"
                   value={eventEndTime}
                   onChange={(e) => setEventEndTime(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">مکان یا لینک جلسه</label>
-              <input
-                type="text"
-                value={eventLocation}
-                onChange={(e) => setEventLocation(e.target.value)}
-                placeholder="اتاق جلسات / Google Meet / تلفنی..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
-              />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label className={labelClass}>مکان یا لینک جلسه</label>
+                <input
+                  type="text"
+                  value={eventLocation}
+                  onChange={(e) => setEventLocation(e.target.value)}
+                  placeholder="اتاق جلسات / Google Meet / تلفنی..."
+                  className={fieldInputClass}
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">رنگ رویداد</label>
-              <div className="flex items-center gap-2">
-                {['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'].map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setEventColor(c)}
-                    className={`w-7 h-7 rounded-full transition cursor-pointer ${
-                      eventColor === c ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
-                    }`}
-                    style={{ backgroundColor: c }}
-                  />
-                ))}
+              <div>
+                <label className={labelClass}>رنگ رویداد</label>
+                <div className="h-11 px-3.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-between">
+                  {['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'].map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setEventColor(c)}
+                      className={`w-6 h-6 rounded-full transition cursor-pointer ${
+                        eventColor === c ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'
+                      }`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div>
+              <label className={labelClass}>توضیحات یا دستور جلسه</label>
+              <textarea
+                rows={2}
+                value={eventDesc}
+                onChange={(e) => setEventDesc(e.target.value)}
+                placeholder="یادداشت‌ها و نکات مربوط به رویداد..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setQuickAddOpen(false)}
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
+              >
+                انصراف
+              </button>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                افزودن به تقویم
+                <CalendarIcon className="w-4 h-4" />
+                <span>افزودن به تقویم</span>
               </button>
             </div>
           </form>
@@ -576,33 +610,33 @@ export const QuickAddModal: React.FC = () => {
         {activeTab === 'project' && (
           <form onSubmit={handleSubmitProject} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">نام پروژه *</label>
+              <label className={labelClass}>نام پروژه *</label>
               <input
                 type="text"
                 required
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 placeholder="مثلاً: راه‌اندازی کمپین تبلیغاتی..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
+                className={fieldInputClass}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">مهلت پایان (Deadline)</label>
+                <label className={labelClass}>مهلت پایان (Deadline)</label>
                 <input
                   type="date"
                   value={projectDeadline}
                   onChange={(e) => setProjectDeadline(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">اولویت</label>
+                <label className={labelClass}>اولویت</label>
                 <select
                   value={projectPriority}
                   onChange={(e) => setProjectPriority(e.target.value as Priority)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 >
                   <option value="low">عادی</option>
                   <option value="medium">متوسط</option>
@@ -612,40 +646,58 @@ export const QuickAddModal: React.FC = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">رنگ مشخصه پروژه</label>
-              <div className="flex items-center gap-2">
-                {['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'].map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setProjectColor(c)}
-                    className={`w-7 h-7 rounded-full transition cursor-pointer ${
-                      projectColor === c ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
-                    }`}
-                    style={{ backgroundColor: c }}
-                  />
-                ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label className={labelClass}>رنگ مشخصه پروژه</label>
+                <div className="h-11 px-3.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-between">
+                  {['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'].map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setProjectColor(c)}
+                      className={`w-6 h-6 rounded-full transition cursor-pointer ${
+                        projectColor === c ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'
+                      }`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>وضعیت اولیه</label>
+                <div className="h-11 px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-xs flex items-center justify-between">
+                  <span>برنامه‌ریزی اولیه</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
+                </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">توضیحات و اهداف پروژه</label>
+              <label className={labelClass}>توضیحات و اهداف پروژه</label>
               <textarea
                 rows={2}
                 value={projectDesc}
                 onChange={(e) => setProjectDesc(e.target.value)}
                 placeholder="شرح کوتاه درباره پروژه..."
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 resize-none"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setQuickAddOpen(false)}
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
+              >
+                انصراف
+              </button>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                ایجاد پروژه
+                <FolderKanban className="w-4 h-4" />
+                <span>ایجاد پروژه</span>
               </button>
             </div>
           </form>
@@ -655,43 +707,54 @@ export const QuickAddModal: React.FC = () => {
         {activeTab === 'goal' && (
           <form onSubmit={handleSubmitGoal} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان هدف *</label>
+              <label className={labelClass}>عنوان هدف *</label>
               <input
                 type="text"
                 required
                 value={goalTitle}
                 onChange={(e) => setGoalTitle(e.target.value)}
                 placeholder="مثلاً: مطالعه ۲۴ کتاب در سال..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
+                className={fieldInputClass}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">نوع هدف</label>
+                <label className={labelClass}>نوع هدف</label>
                 <select
                   value={goalType}
                   onChange={(e) => setGoalType(e.target.value as GoalType)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 >
                   <option value="short_term">کوتاه‌مدت (ماهانه/فصلی)</option>
                   <option value="long_term">بلندمدت (سالانه/چند ساله)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">تاریخ تحقق مورد نظر</label>
+                <label className={labelClass}>تاریخ تحقق مورد نظر</label>
                 <input
                   type="date"
                   value={goalTargetDate}
                   onChange={(e) => setGoalTargetDate(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
             </div>
 
+            <div>
+              <label className={labelClass}>توضیحات هدف</label>
+              <textarea
+                rows={2}
+                value={goalDesc}
+                onChange={(e) => setGoalDesc(e.target.value)}
+                placeholder="علت انتخاب هدف و نتیجه مورد انتظار..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 resize-none"
+              />
+            </div>
+
             {/* Milestones */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">نشانه‌های پیشرفت (Milestones)</label>
+              <label className={labelClass}>نشانه‌های پیشرفت (Milestones)</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -704,14 +767,15 @@ export const QuickAddModal: React.FC = () => {
                     }
                   }}
                   placeholder="افزودن مرحله..."
-                  className="flex-1 px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
+                  className="h-10 flex-1 px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
                 />
                 <button
                   type="button"
                   onClick={handleAddMilestone}
-                  className="px-3 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium transition"
+                  className="h-10 px-4 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold transition flex items-center gap-1"
                 >
                   <Plus className="w-4 h-4" />
+                  <span>افزودن</span>
                 </button>
               </div>
 
@@ -720,7 +784,7 @@ export const QuickAddModal: React.FC = () => {
                   {goalMilestones.map((ms, idx) => (
                     <div
                       key={ms.id}
-                      className="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 border border-slate-700/50 text-xs text-slate-200"
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-200"
                     >
                       <span>{ms.title}</span>
                       <button
@@ -736,12 +800,20 @@ export const QuickAddModal: React.FC = () => {
               )}
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setQuickAddOpen(false)}
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
+              >
+                انصراف
+              </button>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                ثبت هدف
+                <Target className="w-4 h-4" />
+                <span>ثبت هدف</span>
               </button>
             </div>
           </form>
@@ -751,24 +823,24 @@ export const QuickAddModal: React.FC = () => {
         {activeTab === 'habit' && (
           <form onSubmit={handleSubmitHabit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان عادت روزانه *</label>
+              <label className={labelClass}>عنوان عادت روزانه *</label>
               <input
                 type="text"
                 required
                 value={habitTitle}
                 onChange={(e) => setHabitTitle(e.target.value)}
                 placeholder="مثلاً: ورزش صبحگاهی و نرمش / مطالعه ۳۰ دقیقه..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
+                className={fieldInputClass}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">بازه زمانی ترجیحی</label>
+                <label className={labelClass}>بازه زمانی ترجیحی</label>
                 <select
                   value={habitTimeOfDay}
                   onChange={(e) => setHabitTimeOfDay(e.target.value as any)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 >
                   <option value="morning">صبحگاه</option>
                   <option value="afternoon">ظهر و بعدازظهر</option>
@@ -778,15 +850,15 @@ export const QuickAddModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">رنگ آیکون</label>
-                <div className="flex items-center gap-2 pt-1">
+                <label className={labelClass}>رنگ آیکون</label>
+                <div className="h-11 px-3.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-between">
                   {['#8b5cf6', '#10b981', '#f59e0b', '#3b82f6', '#ec4899'].map((c) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => setHabitColor(c)}
-                      className={`w-7 h-7 rounded-full transition cursor-pointer ${
-                        habitColor === c ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
+                      className={`w-6 h-6 rounded-full transition cursor-pointer ${
+                        habitColor === c ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'
                       }`}
                       style={{ backgroundColor: c }}
                     />
@@ -795,12 +867,31 @@ export const QuickAddModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div>
+              <label className={labelClass}>توضیحات یا انگیزه انجام</label>
+              <textarea
+                rows={2}
+                value={habitDesc}
+                onChange={(e) => setHabitDesc(e.target.value)}
+                placeholder="علت ایجاد این عادت و شرایط انجام آن..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setQuickAddOpen(false)}
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
+              >
+                انصراف
+              </button>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                ثبت عادت
+                <Flame className="w-4 h-4" />
+                <span>ثبت عادت</span>
               </button>
             </div>
           </form>
@@ -810,50 +901,39 @@ export const QuickAddModal: React.FC = () => {
         {activeTab === 'note' && (
           <form onSubmit={handleSubmitNote} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان یادداشت *</label>
+              <label className={labelClass}>عنوان یادداشت *</label>
               <input
                 type="text"
                 required
                 value={noteTitle}
                 onChange={(e) => setNoteTitle(e.target.value)}
                 placeholder="عنوان یادداشت یا ایده..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
+                className={fieldInputClass}
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">متن یادداشت</label>
-              <textarea
-                rows={4}
-                value={noteContent}
-                onChange={(e) => setNoteContent(e.target.value)}
-                placeholder="ایده‌ها، نکات کلیدی، یادداشت‌های جلسه یا خلاصه کتاب..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 resize-none"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">برچسب‌ها (با کاما جدا کنید)</label>
+                <label className={labelClass}>برچسب‌ها (با کاما جدا کنید)</label>
                 <input
                   type="text"
                   value={noteTags}
                   onChange={(e) => setNoteTags(e.target.value)}
                   placeholder="ایده, کار, مطالعه..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">رنگ پس‌زمینه کارت</label>
-                <div className="flex items-center gap-2 pt-1">
+                <label className={labelClass}>رنگ پس‌زمینه کارت</label>
+                <div className="h-11 px-3.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-between">
                   {['#1e293b', '#2e1065', '#0f172a', '#1e1b4b', '#064e3b', '#7c2d12'].map((c) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => setNoteColor(c)}
-                      className={`w-7 h-7 rounded-full border border-slate-700 transition cursor-pointer ${
-                        noteColor === c ? 'ring-2 ring-white scale-110' : 'opacity-70 hover:opacity-100'
+                      className={`w-6 h-6 rounded-full border border-slate-600 transition cursor-pointer ${
+                        noteColor === c ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'
                       }`}
                       style={{ backgroundColor: c }}
                     />
@@ -862,12 +942,31 @@ export const QuickAddModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div>
+              <label className={labelClass}>متن یادداشت</label>
+              <textarea
+                rows={3}
+                value={noteContent}
+                onChange={(e) => setNoteContent(e.target.value)}
+                placeholder="ایده‌ها، نکات کلیدی، یادداشت‌های جلسه یا خلاصه کتاب..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setQuickAddOpen(false)}
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
+              >
+                انصراف
+              </button>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                ذخیره یادداشت
+                <FileText className="w-4 h-4" />
+                <span>ذخیره یادداشت</span>
               </button>
             </div>
           </form>
@@ -877,46 +976,46 @@ export const QuickAddModal: React.FC = () => {
         {activeTab === 'reminder' && (
           <form onSubmit={handleSubmitReminder} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان یادآور *</label>
+              <label className={labelClass}>عنوان یادآور *</label>
               <input
                 type="text"
                 required
                 value={reminderTitle}
                 onChange={(e) => setReminderTitle(e.target.value)}
                 placeholder="مثلاً: پرداخت قبض اینترنت / تماس با مشاور مالی..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
+                className={fieldInputClass}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">تاریخ یادآوری</label>
+                <label className={labelClass}>تاریخ یادآوری</label>
                 <input
                   type="date"
                   value={reminderDate}
                   onChange={(e) => setReminderDate(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">ساعت یادآوری</label>
+                <label className={labelClass}>ساعت یادآوری</label>
                 <input
                   type="time"
                   value={reminderTime}
                   onChange={(e) => setReminderTime(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">تکرار</label>
+                <label className={labelClass}>تکرار</label>
                 <select
                   value={reminderType}
                   onChange={(e) => setReminderType(e.target.value as RecurrenceType)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 >
                   <option value="none">یک‌بار مصرف</option>
                   <option value="daily">روزانه</option>
@@ -926,11 +1025,11 @@ export const QuickAddModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">اولویت</label>
+                <label className={labelClass}>اولویت</label>
                 <select
                   value={reminderPriority}
                   onChange={(e) => setReminderPriority(e.target.value as Priority)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                  className={fieldInputClass}
                 >
                   <option value="low">عادی</option>
                   <option value="medium">متوسط</option>
@@ -940,12 +1039,20 @@ export const QuickAddModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setQuickAddOpen(false)}
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
+              >
+                انصراف
+              </button>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                ثبت یادآور
+                <Bell className="w-4 h-4" />
+                <span>ثبت یادآور</span>
               </button>
             </div>
           </form>

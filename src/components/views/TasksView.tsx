@@ -650,28 +650,29 @@ export const TasksView: React.FC = () => {
           isOpen={true}
           onClose={() => setEditingTask(null)}
           title="ویرایش وظیفه"
-          maxWidth="lg"
+          subtitle="تغییر مشخصات، وضعیت و اولویت وظیفه"
+          maxWidth="xl"
           icon={<Edit2 className="text-purple-400" />}
         >
           <form onSubmit={handleUpdateTask} className="space-y-4" dir="rtl">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">عنوان وظیفه *</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان وظیفه *</label>
               <input
                 type="text"
                 required
                 value={editingTask.title}
                 onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                className="h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">وضعیت</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">وضعیت</label>
                 <select
                   value={editingTask.status}
                   onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value as TaskStatus })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
+                  className="h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition"
                 >
                   <option value="todo">انجام نشده</option>
                   <option value="in_progress">در حال انجام</option>
@@ -680,11 +681,11 @@ export const TasksView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">اولویت</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">اولویت</label>
                 <select
                   value={editingTask.priority}
                   onChange={(e) => setEditingTask({ ...editingTask, priority: e.target.value as Priority })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
+                  className="h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition"
                 >
                   <option value="low">کم</option>
                   <option value="medium">متوسط</option>
@@ -694,23 +695,23 @@ export const TasksView: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">تاریخ سررسید</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">تاریخ سررسید</label>
                 <input
                   type="date"
                   value={editingTask.dueDate || ''}
                   onChange={(e) => setEditingTask({ ...editingTask, dueDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
+                  className="h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">پروژه</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">پروژه</label>
                 <select
                   value={editingTask.projectId || ''}
                   onChange={(e) => setEditingTask({ ...editingTask, projectId: e.target.value || undefined })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500"
+                  className="h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition"
                 >
                   <option value="">بدون پروژه</option>
                   {allProjects.map((p) => (
@@ -723,26 +724,26 @@ export const TasksView: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">توضیحات</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">توضیحات</label>
               <textarea
                 rows={3}
                 value={editingTask.description || ''}
                 onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500 resize-none"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition resize-none"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
               <button
                 type="button"
                 onClick={() => setEditingTask(null)}
-                className="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 text-xs font-medium cursor-pointer"
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
               >
                 انصراف
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
               >
                 ذخیره تغییرات
               </button>

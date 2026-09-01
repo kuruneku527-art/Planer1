@@ -309,9 +309,9 @@ export const DailyPlannerView: React.FC = () => {
           {/* Add TimeBlock Form */}
           <form
             onSubmit={handleAddTimeBlock}
-            className="p-4 rounded-xl bg-slate-800/40 border border-slate-800 grid grid-cols-1 sm:grid-cols-4 gap-2.5 items-center"
+            className="p-3.5 sm:p-4 rounded-xl bg-slate-800/40 border border-slate-800 flex flex-col md:flex-row items-stretch md:items-center gap-2.5"
           >
-            <div className="sm:col-span-2">
+            <div className="flex-1 min-w-0">
               <input
                 type="text"
                 required
@@ -322,25 +322,26 @@ export const DailyPlannerView: React.FC = () => {
               />
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-between sm:justify-start gap-1.5 flex-shrink-0 bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-slate-700">
+              <span className="text-[11px] text-slate-400 font-medium ml-0.5">زمان:</span>
               <input
                 type="time"
                 value={newBlockStart}
                 onChange={(e) => setNewBlockStart(e.target.value)}
-                className="w-full px-2 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs font-mono"
+                className="px-1.5 py-1 rounded-lg bg-slate-900 border border-slate-700/60 text-slate-100 text-xs font-mono focus:outline-none focus:border-purple-500"
               />
-              <span className="text-slate-500 text-xs">-</span>
+              <span className="text-slate-500 text-xs">تا</span>
               <input
                 type="time"
                 value={newBlockEnd}
                 onChange={(e) => setNewBlockEnd(e.target.value)}
-                className="w-full px-2 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs font-mono"
+                className="px-1.5 py-1 rounded-lg bg-slate-900 border border-slate-700/60 text-slate-100 text-xs font-mono focus:outline-none focus:border-purple-500"
               />
             </div>
 
             <button
               type="submit"
-              className="py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium transition cursor-pointer flex items-center justify-center gap-1"
+              className="py-2 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 flex-shrink-0 whitespace-nowrap shadow-sm shadow-purple-950/50 active:scale-98"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>افزودن بلوک</span>

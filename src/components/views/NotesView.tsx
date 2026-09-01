@@ -227,42 +227,43 @@ export const NotesView: React.FC = () => {
           isOpen={true}
           onClose={() => setEditingNote(null)}
           title="ویرایش یادداشت"
-          maxWidth="lg"
+          subtitle="تغییر عنوان و متن یادداشت"
+          maxWidth="xl"
           icon={<Edit2 className="text-amber-400" />}
         >
           <form onSubmit={handleUpdateNote} className="space-y-4" dir="rtl">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">عنوان یادداشت *</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان یادداشت *</label>
               <input
                 type="text"
                 required
                 value={editingNote.title}
                 onChange={(e) => setEditingNote({ ...editingNote, title: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-purple-500"
+                className="h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">متن یادداشت</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">متن یادداشت</label>
               <textarea
                 rows={6}
                 value={editingNote.content}
                 onChange={(e) => setEditingNote({ ...editingNote, content: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-purple-500 resize-none font-sans leading-relaxed"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 resize-none font-sans leading-relaxed transition"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
               <button
                 type="button"
                 onClick={() => setEditingNote(null)}
-                className="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 text-xs font-medium cursor-pointer"
+                className="h-11 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition cursor-pointer"
               >
                 انصراف
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium shadow-md shadow-purple-950/40 cursor-pointer"
+                className="h-11 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-md shadow-purple-950/40 cursor-pointer"
               >
                 ذخیره تغییرات
               </button>

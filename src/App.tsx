@@ -33,9 +33,11 @@ import { BackupView } from './components/views/BackupView';
 import { SettingsView } from './components/views/SettingsView';
 
 const MainLayout: React.FC = () => {
-  const { activeView } = useApp();
+  const { activeView, pomodoroStrictLock, pomodoroIsRunning, unlockPomodoroFocus, pausePomodoro } = useApp();
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  const isLockActive = pomodoroStrictLock && pomodoroIsRunning;
 
   const renderCurrentView = () => {
     switch (activeView) {
@@ -82,13 +84,41 @@ const MainLayout: React.FC = () => {
 
   return (
     <div id="planner-root" className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden" dir="rtl">
-      {/* Persistent Desktop & Tablet Sidebar */}
-      <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      {/* Persistent Desktop & Tablet Sidebar (Hidden when strict lock is active) */}
+      {!isLockActive && (
+        <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        {/* Top App Header */}
-        <Header onMobileMenuToggle={() => setDrawerOpen(true)} />
+        {/* Top App Header (Hidden when strict lock is active) */}
+        {!isLockActive ? (
+          <Header onMobileMenuToggle={() => setDrawerOpen(true)} />
+        ) : (
+          <header
+            className="px-4 sm:px-6 bg-slate-900/95 border-b border-rose-900/40 flex items-center justify-between sticky top-0 z-30 shrink-0"
+            style={{
+              paddingTop: 'max(env(safe-area-inset-top, 0px), 0.75rem)',
+              paddingBottom: '0.75rem',
+              minHeight: 'calc(3.75rem + env(safe-area-inset-top, 0px))',
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+              <span className="font-black text-sm text-slate-100">حالت تمرکز عمیق (قفل شده)</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                pausePomodoro();
+                unlockPomodoroFocus();
+              }}
+              className="px-3 py-1.5 rounded-xl bg-rose-950 border border-rose-800 text-rose-300 text-xs font-bold hover:bg-rose-900 transition cursor-pointer"
+            >
+              خروج اضطراری و باز کردن قفل
+            </button>
+          </header>
+        )}
 
         {/* Scrollable View Container */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
@@ -96,8 +126,10 @@ const MainLayout: React.FC = () => {
         </main>
       </div>
 
-      {/* Mobile Drawer & Bottom Navigation Bar */}
-      <MobileNav drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+      {/* Mobile Drawer & Bottom Navigation Bar (Hidden when strict lock is active) */}
+      {!isLockActive && (
+        <MobileNav drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
+      )}
 
       {/* Global Modals */}
       <QuickAddModal />

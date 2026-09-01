@@ -77,7 +77,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
       {/* Bottom Navigation Bar for Mobile: 5 symmetric items with + strictly centered */}
       <div
         id="mobile-bottom-nav"
-        className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-40 grid grid-cols-5 items-center px-1"
+        className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-40 grid grid-cols-5 items-center px-1"
+        style={{
+          paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
+          height: 'calc(4rem + env(safe-area-inset-bottom, 0px))',
+        }}
         dir="rtl"
       >
         {/* 1. Dashboard */}
@@ -171,7 +175,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
               className="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl"
             >
               {/* Drawer Header */}
-              <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800">
+              <div
+                className="px-4 flex items-center justify-between border-b border-slate-800 shrink-0"
+                style={{
+                  paddingTop: 'max(env(safe-area-inset-top, 0px), 0.75rem)',
+                  paddingBottom: '0.75rem',
+                  minHeight: 'calc(3.75rem + env(safe-area-inset-top, 0px))',
+                }}
+              >
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center">
                     <Sparkles className="w-4 h-4" />
