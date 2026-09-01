@@ -298,3 +298,69 @@ html.light .shadow-2xl,
 html.light .shadow-lg {
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04) !important;
 }
+
+/* ==========================================================================
+   DASHBOARD WELCOME BANNER (LIGHT THEME VIBRANT & ATTRACTIVE PALETTE)
+   Modern energetic gradient (royal purple / indigo / warm sunset violet)
+   ========================================================================== */
+html.light #dashboard-welcome-banner,
+[data-theme="light"] #dashboard-welcome-banner {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.3), 0 8px 10px -6px rgba(99, 102, 241, 0.2) !important;
+  color: #ffffff !important;
+}
+
+html.light #dashboard-welcome-date-badge,
+[data-theme="light"] #dashboard-welcome-date-badge {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+}
+
+html.light #dashboard-welcome-title,
+[data-theme="light"] #dashboard-welcome-title {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+html.light #dashboard-welcome-desc,
+[data-theme="light"] #dashboard-welcome-desc {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+html.light #dashboard-secondary-focus-btn,
+[data-theme="light"] #dashboard-secondary-focus-btn {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+}
+
+html.light #dashboard-secondary-focus-btn:hover,
+[data-theme="light"] #dashboard-secondary-focus-btn:hover {
+  background-color: rgba(255, 255, 255, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  color: #ffffff !important;
+}
+
+html.light #dashboard-primary-add-btn,
+[data-theme="light"] #dashboard-primary-add-btn {
+  background-color: #ffffff !important;
+  color: #6d28d9 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+html.light #dashboard-primary-add-btn:hover,
+[data-theme="light"] #dashboard-primary-add-btn:hover {
+  background-color: #f8fafc !important;
+  color: #5b21b6 !important;
+}
+
+html.light #dashboard-welcome-glow,
+[data-theme="light"] #dashboard-welcome-glow {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
+

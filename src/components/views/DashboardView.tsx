@@ -91,23 +91,24 @@ export const DashboardView: React.FC = () => {
   return (
     <div id="dashboard-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto" dir="rtl">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-indigo-950/40 border border-purple-800/30 p-4 sm:p-8">
+      <div id="dashboard-welcome-banner" className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-indigo-950/40 border border-purple-800/30 p-4 sm:p-8">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-purple-900/60 text-purple-300 text-[11px] sm:text-xs font-semibold mb-1.5 sm:mb-2 border border-purple-700/40">
+            <div id="dashboard-welcome-date-badge" className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-purple-900/60 text-purple-300 text-[11px] sm:text-xs font-semibold mb-1.5 sm:mb-2 border border-purple-700/40">
               <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span>{todayJalali}</span>
             </div>
-            <h2 className="text-lg sm:text-2xl font-black text-slate-100">
+            <h2 id="dashboard-welcome-title" className="text-lg sm:text-2xl font-black text-slate-100">
               {settings.userName ? `سلام ${settings.userName}، روزت بخیر!` : 'سلام، به پلنر خوش آمدید!'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl leading-relaxed line-clamp-1 sm:line-clamp-none">
+            <p id="dashboard-welcome-desc" className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl leading-relaxed line-clamp-1 sm:line-clamp-none">
               مرکز کنترل روزانه برای مدیریت دقیق وظایف، برنامه‌ها، جلسات و عادت‌های سازنده شما.
             </p>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto pt-1 sm:pt-0">
             <button
+              id="dashboard-primary-add-btn"
               type="button"
               onClick={() => openQuickAdd('task')}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-medium transition shadow-lg shadow-purple-950/50 cursor-pointer active:scale-98"
@@ -116,6 +117,7 @@ export const DashboardView: React.FC = () => {
               <span>وظیفه جدید</span>
             </button>
             <button
+              id="dashboard-secondary-focus-btn"
               type="button"
               onClick={() => setActiveView('pomodoro')}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700 transition cursor-pointer"
@@ -127,7 +129,7 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* Ambient background glow */}
-        <div className="absolute top-0 left-0 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div id="dashboard-welcome-glow" className="absolute top-0 left-0 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* Top 4 Summary Metric Cards (Real Data) */}
