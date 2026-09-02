@@ -175,14 +175,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
               className="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-2xl"
             >
               {/* Drawer Header */}
-              <div
-                className="px-4 flex items-center justify-between border-b border-slate-800 shrink-0"
-                style={{
-                  paddingTop: 'max(env(safe-area-inset-top, 0px), 0.75rem)',
-                  paddingBottom: '0.75rem',
-                  minHeight: 'calc(3.75rem + env(safe-area-inset-top, 0px))',
-                }}
-              >
+              <div className="h-14 sm:h-16 px-4 flex items-center justify-between border-b border-slate-800 shrink-0">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl overflow-hidden bg-slate-950 border border-purple-500/30 flex items-center justify-center shrink-0">
                     <img
@@ -192,28 +185,24 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
                       referrerPolicy="no-referrer"
                     />
                   </div>
-                  <span className="font-extrabold text-slate-100">منوی بخش‌های پلنر</span>
+                  <span className="font-extrabold text-sm text-slate-100">منوی بخش‌های پلنر</span>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  {/* Quick Theme Toggle inside Mobile Drawer */}
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={toggleTheme}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
-                    title={settings.theme === 'dark' ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
+                    className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
+                    title={settings.theme === 'dark' ? 'تم روشن' : 'تم تاریک'}
                   >
-                    {settings.theme === 'dark' ? (
-                      <Sun className="w-5 h-5 text-amber-400" />
-                    ) : (
-                      <Moon className="w-5 h-5 text-purple-400" />
-                    )}
+                    {settings.theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-purple-400" />}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleSetDrawerOpen(false)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer"
+                    title="بستن منو"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -221,7 +210,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
               </div>
 
               {/* Drawer Grid Navigation */}
-              <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-2.5">
+              <div className="flex-1 overflow-y-auto p-4 pb-20 grid grid-cols-2 gap-2.5">
                 {allViews.map((v) => {
                   const Icon = v.icon;
                   const isActive = activeView === v.id;
@@ -244,19 +233,6 @@ export const MobileNav: React.FC<MobileNavProps> = ({ drawerOpen, setDrawerOpen 
                     </button>
                   );
                 })}
-              </div>
-
-              {/* Drawer Footer with Theme & Status */}
-              <div className="p-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">پلنر شخصی — هوشمند و آفلاین</span>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-300 font-medium hover:bg-slate-700 transition cursor-pointer"
-                >
-                  {settings.theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-purple-400" />}
-                  <span>{settings.theme === 'dark' ? 'تم روشن' : 'تم تاریک'}</span>
-                </button>
               </div>
             </motion.div>
           </div>

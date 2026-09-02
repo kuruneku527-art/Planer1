@@ -10,7 +10,7 @@ import {
   toGregorianIsoDate,
 } from '../../utils/jalali';
 import { Modal } from '../common/Modal';
-import { CalendarEvent } from '../../types';
+import { CalendarEvent, Task } from '../../types';
 import {
   Calendar as CalendarIcon,
   ChevronRight,
@@ -20,7 +20,9 @@ import {
   MapPin,
   Trash2,
   CheckSquare,
+  Share2,
 } from 'lucide-react';
+import { systemPermissions } from '../../services/systemPermissions';
 
 export const CalendarView: React.FC = () => {
   const { openQuickAdd, refreshTrigger, refreshDb, settings, showToast, showConfirm } = useApp();
@@ -122,13 +124,27 @@ export const CalendarView: React.FC = () => {
     });
   };
 
-  const handleToggleTask = (taskId: string) => {
-    db.toggleTaskStatus(taskId);
-    refreshDb();
+  const handleToggleTask = (task: Task) => {
+    if (task.status === 'completed') {
+      showConfirm({
+        title: 'لغو وضعیت انجام شده',
+        message: `آیا از لغو وضعیت انجام شده وظیفه «${task.title}» مطمئن هستید؟`,
+        confirmText: 'بله، لغو شود',
+        cancelText: 'انصراف',
+        isDanger: false,
+        onConfirm: () => {
+          db.toggleTaskStatus(task.id);
+          refreshDb();
+        },
+      });
+    } else {
+      db.toggleTaskStatus(task.id);
+      refreshDb();
+    }
   };
 
   return (
-    <div id="calendar-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto" dir="rtl">
+    <div id="calendar-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8" dir="rtl">
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
@@ -331,13 +347,33 @@ export const CalendarView: React.FC = () => {
                       >
                         <div className="flex items-center justify-between">
                           <h5 className="font-bold text-slate-100 text-xs truncate">{ev.title}</h5>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteEvent(ev)}
-                            className="text-slate-500 hover:text-rose-400 p-1 opacity-0 group-hover:opacity-100 transition"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                            <button
+                              type="button"
+                              title="افزودن به تقویم گوشی"
+                              onClick={() => {
+                                systemPermissions.exportToDeviceCalendar({
+                                  title: ev.title,
+                                  description: ev.description,
+                                  location: ev.location,
+                                  startDate: ev.startDate,
+                                  startTime: ev.startTime,
+                                  endTime: ev.endTime,
+                                });
+                                showToast('رویداد به تقویم دستگاه ارسال شد.', 'success');
+                              }}
+                              className="text-slate-400 hover:text-emerald-400 p-1 transition cursor-pointer"
+                            >
+                              <Share2 className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteEvent(ev)}
+                              className="text-slate-500 hover:text-rose-400 p-1 transition cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-3 text-[10px] text-slate-400 font-mono">
@@ -375,7 +411,7 @@ export const CalendarView: React.FC = () => {
                     {selectedDayTasks.map((t) => (
                       <div
                         key={t.id}
-                        onClick={() => handleToggleTask(t.id)}
+                        onClick={() => handleToggleTask(t)}
                         className={`p-2.5 rounded-xl border flex items-center justify-between text-xs cursor-pointer transition ${
                           t.status === 'completed'
                             ? 'bg-slate-800/30 border-slate-800/40 text-slate-500 line-through'

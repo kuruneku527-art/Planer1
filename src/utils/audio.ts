@@ -124,6 +124,46 @@ class SoundSynthesizer {
       });
     } catch {}
   }
+
+  playAlarmChime(volume: number = 0.7) {
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      // Two rounds of ringing melody (B5, D6, F#6)
+      const pattern = [
+        { freq: 987.77, time: 0 },
+        { freq: 1174.66, time: 0.15 },
+        { freq: 1479.98, time: 0.3 },
+        { freq: 987.77, time: 0.6 },
+        { freq: 1174.66, time: 0.75 },
+        { freq: 1479.98, time: 0.9 },
+      ];
+
+      pattern.forEach(({ freq, time }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + time);
+
+        gain.gain.setValueAtTime(0, now + time);
+        gain.gain.linearRampToValueAtTime(volume * 0.4, now + time + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + time + 0.35);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + time);
+        osc.stop(now + time + 0.4);
+      });
+
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate([250, 100, 250, 100, 250]);
+      }
+    } catch {}
+  }
 }
 
 export const soundEffects = new SoundSynthesizer();

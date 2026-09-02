@@ -30,15 +30,51 @@ export const GoalsView: React.FC = () => {
     return allGoals.filter((g) => g.type === activeTab);
   }, [allGoals, activeTab]);
 
-  const handleToggleMilestone = (goalId: string, milestoneId: string) => {
-    const goal = db.getGoal(goalId);
-    if (!goal) return;
-    const milestones = goal.milestones.map((m) =>
-      m.id === milestoneId ? { ...m, completed: !m.completed } : m
-    );
-    const allDone = milestones.length > 0 && milestones.every((m) => m.completed);
-    const newStatus: GoalStatus = allDone ? 'achieved' : 'in_progress';
-    db.saveGoal({ ...goal, milestones, status: newStatus });
+  const [newMilestoneTexts, setNewMilestoneTexts] = useState<Record<string, string>>({});
+
+  const handleToggleMilestone = (goal: Goal, milestoneId: string) => {
+    const milestone = goal.milestones.find((m) => m.id === milestoneId);
+    if (!milestone) return;
+
+    if (milestone.completed) {
+      showConfirm({
+        title: 'لغو تیک گام هدف',
+        message: `آیا از لغو وضعیت انجام شده برای گام «${milestone.title}» اطمینان دارید؟`,
+        confirmText: 'بله، لغو شود',
+        cancelText: 'انصراف',
+        isDanger: false,
+        onConfirm: () => {
+          const milestones = goal.milestones.map((m) =>
+            m.id === milestoneId ? { ...m, completed: false } : m
+          );
+          db.saveGoal({ ...goal, milestones, status: 'in_progress' });
+          refreshDb();
+        },
+      });
+    } else {
+      const milestones = goal.milestones.map((m) =>
+        m.id === milestoneId ? { ...m, completed: true } : m
+      );
+      const allDone = milestones.length > 0 && milestones.every((m) => m.completed);
+      db.saveGoal({ ...goal, milestones, status: allDone ? 'achieved' : 'in_progress' });
+      refreshDb();
+    }
+  };
+
+  const handleAddMilestoneToGoal = (goal: Goal) => {
+    const text = (newMilestoneTexts[goal.id] || '').trim();
+    if (!text) return;
+
+    const newMilestone = {
+      id: `ms_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+      title: text,
+      completed: false,
+    };
+
+    const updatedMilestones = [...goal.milestones, newMilestone];
+    db.saveGoal({ ...goal, milestones: updatedMilestones, status: 'in_progress' });
+    setNewMilestoneTexts((prev) => ({ ...prev, [goal.id]: '' }));
+    showToast('گام جدید به هدف افزوده شد.', 'success');
     refreshDb();
   };
 
@@ -56,7 +92,7 @@ export const GoalsView: React.FC = () => {
   };
 
   return (
-    <div id="goals-view" className="space-y-6 max-w-7xl mx-auto" dir="rtl">
+    <div id="goals-view" className="space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8" dir="rtl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -184,7 +220,7 @@ export const GoalsView: React.FC = () => {
                         {goal.milestones.map((m) => (
                           <div
                             key={m.id}
-                            onClick={() => handleToggleMilestone(goal.id, m.id)}
+                            onClick={() => handleToggleMilestone(goal, m.id)}
                             className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer hover:text-purple-300 transition"
                           >
                             <div
@@ -202,6 +238,35 @@ export const GoalsView: React.FC = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Inline Add Milestone Form */}
+                  <div className="mt-3 pt-3 border-t border-slate-800/80">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleAddMilestoneToGoal(goal);
+                      }}
+                      className="flex items-center gap-1.5"
+                    >
+                      <input
+                        type="text"
+                        value={newMilestoneTexts[goal.id] || ''}
+                        onChange={(e) =>
+                          setNewMilestoneTexts((prev) => ({ ...prev, [goal.id]: e.target.value }))
+                        }
+                        placeholder="ثبت اقدام/گام جدید برای پیشرفت..."
+                        className="flex-1 px-2.5 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!(newMilestoneTexts[goal.id] || '').trim()}
+                        className="p-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white transition cursor-pointer"
+                        title="افزودن گام به هدف"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
                 {/* Progress & Target Date */}

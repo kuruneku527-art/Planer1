@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Settings as SettingsIcon,
@@ -12,7 +12,15 @@ import {
   Save,
   CheckCircle2,
   Sparkles,
+  AlertTriangle,
+  ExternalLink,
+  Check,
+  CheckSquare,
+  Repeat,
+  Calendar,
 } from 'lucide-react';
+import { PermissionsCenter } from '../common/PermissionsCenter';
+import { systemPermissions, SystemPermissionsStatus } from '../../services/systemPermissions';
 
 export const SettingsView: React.FC = () => {
   const { settings, updateSettings, showToast } = useApp();
@@ -26,9 +34,45 @@ export const SettingsView: React.FC = () => {
   const [persianDigits, setPersianDigits] = useState(settings.persianDigits ?? true);
   const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(settings.soundEffectsEnabled ?? true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(settings.notificationsEnabled ?? true);
+
+  // Notification Specific Preferences
+  const [remindersEnabled, setRemindersEnabled] = useState(settings.notificationPreferences?.reminders ?? true);
+  const [habitsEnabled, setHabitsEnabled] = useState(settings.notificationPreferences?.habits ?? true);
+  const [tasksEnabled, setTasksEnabled] = useState(settings.notificationPreferences?.tasks ?? true);
+  const [calendarEnabled, setCalendarEnabled] = useState(settings.notificationPreferences?.calendar ?? true);
+
   const [pomodoroFocusMinutes, setPomodoroFocusMinutes] = useState(settings.pomodoroFocusMinutes || 25);
   const [pomodoroShortBreakMinutes, setPomodoroShortBreakMinutes] = useState(settings.pomodoroShortBreakMinutes || 5);
   const [pomodoroLongBreakMinutes, setPomodoroLongBreakMinutes] = useState(settings.pomodoroLongBreakMinutes || 15);
+
+  const [liveStatus, setLiveStatus] = useState<SystemPermissionsStatus>({
+    notification: 'unsupported',
+    alarmExact: 'unsupported',
+    calendar: 'available',
+    backgroundSync: 'unsupported',
+    wakeLock: 'unsupported',
+    batteryOptimization: { supported: false },
+  });
+  const [showSettingsGuidance, setShowSettingsGuidance] = useState(false);
+
+  useEffect(() => {
+    systemPermissions.getLivePermissionsStatus().then(setLiveStatus);
+    const unsub = systemPermissions.subscribe(setLiveStatus);
+    return () => unsub();
+  }, []);
+
+  const handleRequestSystemNotification = async () => {
+    const res = await systemPermissions.requestNotificationPermission();
+    const updated = await systemPermissions.getLivePermissionsStatus();
+    setLiveStatus(updated);
+    if (res === 'granted') {
+      showToast('دسترسی اعلان‌ها با موفقیت فعال شد.', 'success');
+      setShowSettingsGuidance(false);
+    } else {
+      setShowSettingsGuidance(true);
+      showToast('لطفاً از تنظیمات مرورگر/گوشی دسترسی اعلان‌ها را فعال نمایید.', 'warning');
+    }
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +82,14 @@ export const SettingsView: React.FC = () => {
       persianDigits,
       soundEffectsEnabled,
       notificationsEnabled,
+      notificationPreferences: {
+        enabled: notificationsEnabled,
+        reminders: remindersEnabled,
+        habits: habitsEnabled,
+        tasks: tasksEnabled,
+        calendar: calendarEnabled,
+        goals: true,
+      },
       pomodoroFocusMinutes: Number(pomodoroFocusMinutes),
       pomodoroShortBreakMinutes: Number(pomodoroShortBreakMinutes),
       pomodoroLongBreakMinutes: Number(pomodoroLongBreakMinutes),
@@ -57,6 +109,9 @@ export const SettingsView: React.FC = () => {
           تنظیم مشخصات کاربری، ترجیحات نمایش ارقام فارسی، صداها و تایمر تمرکز
         </p>
       </div>
+
+      {/* Real Live OS Permissions Center */}
+      <PermissionsCenter />
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Theme & Appearance Card */}
@@ -179,6 +234,142 @@ export const SettingsView: React.FC = () => {
                 checked={soundEffectsEnabled}
                 onChange={(e) => setSoundEffectsEnabled(e.target.checked)}
                 className="w-5 h-5 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500"
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* Notifications & Reminders Configuration */}
+        <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-purple-400" />
+              <h3 className="font-bold text-slate-100 text-sm">اعلان‌ها و یادآوری‌ها</h3>
+            </div>
+            {liveStatus.notification === 'granted' ? (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                اعلان‌های سیستم فعال
+              </span>
+            ) : (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold border border-rose-500/30">
+                اعلان‌های سیستم غیرفعال
+              </span>
+            )}
+          </div>
+
+          {/* Warning Banner if OS Notification is disabled */}
+          {liveStatus.notification !== 'granted' && (
+            <div className="p-4 rounded-xl bg-rose-950/30 border border-rose-800/60 space-y-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-rose-300 font-bold text-xs sm:text-sm">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>اعلان‌های سیستم غیرفعال هستند.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRequestSystemNotification}
+                  className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition shrink-0 cursor-pointer shadow-sm active:scale-95"
+                >
+                  فعال‌سازی از تنظیمات گوشی
+                </button>
+              </div>
+              <p className="text-xs text-rose-200/80 leading-relaxed">
+                تا زمانی که دسترسی اعلان در سطح سیستم‌عامل فعال نشود، پیام‌ها و هشدارهای موعد در بالای صفحه گوشی نمایش داده نخواهند شد.
+              </p>
+              {showSettingsGuidance && (
+                <div className="mt-2 p-3 rounded-lg bg-slate-900 border border-rose-800/80 text-[11px] text-slate-300 leading-relaxed">
+                  💡 <strong>راهنمای فعال‌سازی:</strong> روی علامت قفل در نوار آدرس مرورگر ضربه بزنید &gt; وارد Permissions (دسترسی‌ها) شوید &gt; گزینه Notifications را فعال (Allow) کنید و سپس به این صفحه برگردید.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Notification Toggles */}
+          <div className="space-y-3">
+            {/* Master Notification Switch */}
+            <label className="flex items-center justify-between p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 cursor-pointer">
+              <div>
+                <span className="text-sm font-bold text-slate-200 block">فعال‌سازی کلی اعلان‌ها (Notifications)</span>
+                <span className="text-xs text-slate-400">کلید اصلی دریافت هرگونه اعلان و هشدار در برنامه</span>
+              </div>
+              <input
+                type="checkbox"
+                checked={notificationsEnabled}
+                onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                className="w-5 h-5 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500"
+              />
+            </label>
+
+            {/* Reminder notifications */}
+            <label className="flex items-center justify-between p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 cursor-pointer">
+              <div className="flex items-center gap-2.5">
+                <Bell className="w-4 h-4 text-purple-400" />
+                <div>
+                  <span className="text-sm font-bold text-slate-200 block">اعلان‌های یادآورها (Reminder notifications)</span>
+                  <span className="text-xs text-slate-400">یادآوری‌های مستقل زمان‌بندی‌شده</span>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                disabled={!notificationsEnabled}
+                checked={remindersEnabled}
+                onChange={(e) => setRemindersEnabled(e.target.checked)}
+                className="w-5 h-5 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500 disabled:opacity-40"
+              />
+            </label>
+
+            {/* Task reminders */}
+            <label className="flex items-center justify-between p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 cursor-pointer">
+              <div className="flex items-center gap-2.5">
+                <CheckSquare className="w-4 h-4 text-emerald-400" />
+                <div>
+                  <span className="text-sm font-bold text-slate-200 block">اعلان‌های موعد وظایف (Task reminders)</span>
+                  <span className="text-xs text-slate-400">هشدار هنگام فرا رسیدن سررسید کارها</span>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                disabled={!notificationsEnabled}
+                checked={tasksEnabled}
+                onChange={(e) => setTasksEnabled(e.target.checked)}
+                className="w-5 h-5 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500 disabled:opacity-40"
+              />
+            </label>
+
+            {/* Habit reminders */}
+            <label className="flex items-center justify-between p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 cursor-pointer">
+              <div className="flex items-center gap-2.5">
+                <Repeat className="w-4 h-4 text-violet-400" />
+                <div>
+                  <span className="text-sm font-bold text-slate-200 block">اعلان‌های عادات روزانه (Habit reminders)</span>
+                  <span className="text-xs text-slate-400">یادآوری اجرای زنجیره عادات در طول روز</span>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                disabled={!notificationsEnabled}
+                checked={habitsEnabled}
+                onChange={(e) => setHabitsEnabled(e.target.checked)}
+                className="w-5 h-5 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500 disabled:opacity-40"
+              />
+            </label>
+
+            {/* Calendar reminders */}
+            <label className="flex items-center justify-between p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 cursor-pointer">
+              <div className="flex items-center gap-2.5">
+                <Calendar className="w-4 h-4 text-sky-400" />
+                <div>
+                  <span className="text-sm font-bold text-slate-200 block">اعلان‌های تقویم و رویدادها (Calendar reminders)</span>
+                  <span className="text-xs text-slate-400">اعلام آغاز جلسات، مناسبت‌ها و رویدادها</span>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                disabled={!notificationsEnabled}
+                checked={calendarEnabled}
+                onChange={(e) => setCalendarEnabled(e.target.checked)}
+                className="w-5 h-5 rounded text-purple-600 bg-slate-900 border-slate-700 focus:ring-purple-500 disabled:opacity-40"
               />
             </label>
           </div>

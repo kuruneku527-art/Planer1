@@ -210,14 +210,27 @@ export interface Template {
   createdAt: string;
 }
 
+export type NotificationCategory =
+  | 'task'
+  | 'habit'
+  | 'goal'
+  | 'calendar'
+  | 'daily_planner'
+  | 'reminder'
+  | 'deadline'
+  | 'system';
+
 export interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  type: 'reminder' | 'deadline' | 'task' | 'system';
+  type: NotificationCategory;
   read: boolean;
   targetView?: string;
   timestamp: string;
+  timeStr?: string;
+  dateStr?: string;
+  sourceId?: string;
 }
 
 export interface PomodoroSettings {
@@ -227,6 +240,15 @@ export interface PomodoroSettings {
   longBreakInterval: number;
   autoStartBreaks: boolean;
   soundEnabled: boolean;
+}
+
+export interface NotificationPreferences {
+  enabled: boolean;
+  reminders: boolean;
+  habits: boolean;
+  tasks: boolean;
+  calendar: boolean;
+  goals: boolean;
 }
 
 export interface UserSettings {
@@ -242,6 +264,7 @@ export interface UserSettings {
   soundEnabled: boolean;
   soundEffectsEnabled: boolean;
   notificationsEnabled: boolean;
+  notificationPreferences?: NotificationPreferences;
   syncEnabled: boolean;
   lastSyncTime?: string;
   userName: string;

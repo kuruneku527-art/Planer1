@@ -21,6 +21,34 @@ export const HabitsView: React.FC = () => {
   const allHabits = useMemo(() => db.getHabits(), [refreshTrigger]);
   const allLogs = useMemo(() => db.getHabitLogs(), [refreshTrigger]);
 
+  const [isCompactAddOpen, setIsCompactAddOpen] = React.useState(false);
+  const [quickTitle, setQuickTitle] = React.useState('');
+  const [quickTime, setQuickTime] = React.useState<'morning' | 'afternoon' | 'evening' | 'anytime'>('morning');
+  const [quickError, setQuickError] = React.useState('');
+
+  const handleQuickAddHabit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickTitle.trim()) {
+      setQuickError('لطفاً عنوان عادت را وارد کنید.');
+      return;
+    }
+    db.saveHabit({
+      id: `habit_${Date.now()}`,
+      title: quickTitle.trim(),
+      color: '#8b5cf6',
+      icon: 'Flame',
+      timeOfDay: quickTime,
+      targetDaysPerWeek: 7,
+      targetDays: [0, 1, 2, 3, 4, 5, 6],
+      createdAt: new Date().toISOString(),
+    });
+    showToast('عادت جدید با موفقیت ذخیره شد.', 'success');
+    setQuickTitle('');
+    setQuickError('');
+    setIsCompactAddOpen(false);
+    refreshDb();
+  };
+
   const todayIso = toGregorianIsoDate();
 
   // Generate last 7 days ISO list
@@ -42,9 +70,26 @@ export const HabitsView: React.FC = () => {
     return days;
   }, [todayIso]);
 
-  const handleToggleHabitForDate = (habitId: string, dateIso: string) => {
-    db.toggleHabitLog(habitId, dateIso);
-    refreshDb();
+  const handleToggleHabitForDate = (habit: Habit, dateIso: string) => {
+    const isDone = allLogs.some(
+      (l) => l.habitId === habit.id && l.date === dateIso && l.completed
+    );
+    if (isDone) {
+      showConfirm({
+        title: 'لغو تیک انجام شده',
+        message: `آیا از لغو وضعیت انجام شده برای عادت «${habit.title}» مطمئن هستید؟`,
+        confirmText: 'بله، لغو شود',
+        cancelText: 'انصراف',
+        isDanger: false,
+        onConfirm: () => {
+          db.toggleHabitLog(habit.id, dateIso);
+          refreshDb();
+        },
+      });
+    } else {
+      db.toggleHabitLog(habit.id, dateIso);
+      refreshDb();
+    }
   };
 
   const handleDeleteHabit = (habit: Habit, e?: React.MouseEvent) => {
@@ -76,13 +121,100 @@ export const HabitsView: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => openQuickAdd('habit')}
+          onClick={() => setIsCompactAddOpen(true)}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-medium shadow-md shadow-purple-950/40 transition cursor-pointer active:scale-98"
         >
           <Plus className="w-4 h-4" />
           <span>عادت جدید</span>
         </button>
       </div>
+
+      {/* Compact Habit Creation Modal (Zero vertical scroll, screen-sized) */}
+      {isCompactAddOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" dir="rtl">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-700/80 rounded-2xl p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Flame className="w-5 h-5 text-amber-400" />
+                <h3 className="font-bold text-sm sm:text-base text-slate-100">ثبت سریع عادت روزانه</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCompactAddOpen(false);
+                  setQuickError('');
+                }}
+                className="text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleQuickAddHabit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  عنوان عادت <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  autoFocus
+                  value={quickTitle}
+                  onChange={(e) => {
+                    setQuickTitle(e.target.value);
+                    if (quickError) setQuickError('');
+                  }}
+                  placeholder="مثلاً: ۲۰ دقیقه مطالعه / نوشیدن آب / ورزش..."
+                  className={`w-full h-11 px-3.5 rounded-xl border text-sm text-slate-100 bg-slate-800 focus:outline-none transition ${
+                    quickError ? 'border-rose-500 ring-1 ring-rose-500/50' : 'border-slate-700 focus:border-purple-500'
+                  }`}
+                />
+                {quickError && <p className="text-[11px] text-rose-400 mt-1 font-medium">{quickError}</p>}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">زمان مناسب انجام در روز</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: 'morning', label: '🌅 صبحگاه' },
+                    { id: 'afternoon', label: '☀️ ظهر / بعدازظهر' },
+                    { id: 'evening', label: '🌙 عصر / شب' },
+                    { id: 'anytime', label: '⚡ شناور در روز' },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setQuickTime(t.id as any)}
+                      className={`py-2 px-3 rounded-xl text-xs font-medium border text-center transition cursor-pointer ${
+                        quickTime === t.id
+                          ? 'bg-purple-600 text-white border-purple-500 shadow-sm'
+                          : 'bg-slate-800/80 border-slate-700/60 text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsCompactAddOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition text-xs font-medium"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shadow-md shadow-purple-950/50 cursor-pointer active:scale-98"
+                >
+                  ذخیره عادت
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {allHabits.length === 0 ? (
         <EmptyState
@@ -116,7 +248,7 @@ export const HabitsView: React.FC = () => {
                 <div className="flex items-center gap-4 min-w-0">
                   <button
                     type="button"
-                    onClick={() => handleToggleHabitForDate(habit.id, todayIso)}
+                    onClick={() => handleToggleHabitForDate(habit, todayIso)}
                     className={`w-11 h-11 rounded-2xl flex items-center justify-center transition cursor-pointer flex-shrink-0 ${
                       isDoneToday
                         ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-900/40'
@@ -154,7 +286,7 @@ export const HabitsView: React.FC = () => {
                       return (
                         <div
                           key={d.iso}
-                          onClick={() => handleToggleHabitForDate(habit.id, d.iso)}
+                          onClick={() => handleToggleHabitForDate(habit, d.iso)}
                           className={`flex flex-col items-center gap-1 cursor-pointer group/dot`}
                           title={`${d.iso} - ${done ? 'انجام شده' : 'انجام نشده'}`}
                         >

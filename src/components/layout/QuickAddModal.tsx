@@ -4,6 +4,7 @@ import { db } from '../../services/db';
 import { Modal } from '../common/Modal';
 import { Priority, RecurrenceType, GoalType, TimeCategory } from '../../types';
 import { toGregorianIsoDate } from '../../utils/jalali';
+import { PersianDatePicker, PersianTimePicker } from '../common/PersianDateTimePicker';
 import {
   CheckSquare,
   Calendar as CalendarIcon,
@@ -83,6 +84,15 @@ export const QuickAddModal: React.FC = () => {
   const [reminderType, setReminderType] = useState<RecurrenceType>('none');
   const [reminderPriority, setReminderPriority] = useState<Priority>('medium');
 
+  // Inline Validation Errors
+  const [taskTitleError, setTaskTitleError] = useState('');
+  const [eventTitleError, setEventTitleError] = useState('');
+  const [projectNameError, setProjectNameError] = useState('');
+  const [goalTitleError, setGoalTitleError] = useState('');
+  const [habitTitleError, setHabitTitleError] = useState('');
+  const [noteTitleError, setNoteTitleError] = useState('');
+  const [reminderTitleError, setReminderTitleError] = useState('');
+
   const existingProjects = db.getProjects();
 
   const resetForms = () => {
@@ -103,6 +113,13 @@ export const QuickAddModal: React.FC = () => {
     setNoteContent('');
     setNoteTags('');
     setReminderTitle('');
+    setTaskTitleError('');
+    setEventTitleError('');
+    setProjectNameError('');
+    setGoalTitleError('');
+    setHabitTitleError('');
+    setNoteTitleError('');
+    setReminderTitleError('');
   };
 
   const handleAddSubtask = () => {
@@ -126,7 +143,7 @@ export const QuickAddModal: React.FC = () => {
   const handleSubmitTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskTitle.trim()) {
-      showToast('لطفاً عنوان وظیفه را وارد کنید.', 'error');
+      setTaskTitleError('لطفاً عنوان وظیفه را وارد کنید.');
       return;
     }
     const tagsArray = taskTags
@@ -150,7 +167,7 @@ export const QuickAddModal: React.FC = () => {
       createdAt: new Date().toISOString(),
     });
 
-    showToast('وظیفه جدید با موفقیت ایجاد شد.', 'success');
+    showToast('وظیفه جدید با موفقیت ذخیره شد.', 'success');
     resetForms();
     refreshDb();
     setQuickAddOpen(false);
@@ -159,7 +176,11 @@ export const QuickAddModal: React.FC = () => {
   const handleSubmitEvent = (e: React.FormEvent) => {
     e.preventDefault();
     if (!eventTitle.trim()) {
-      showToast('لطفاً عنوان رویداد را وارد کنید.', 'error');
+      setEventTitleError('لطفاً عنوان رویداد را وارد کنید.');
+      return;
+    }
+    if (!eventDate) {
+      setEventTitleError('لطفاً تاریخ رویداد را مشخص کنید.');
       return;
     }
     db.saveEvent({
@@ -177,7 +198,7 @@ export const QuickAddModal: React.FC = () => {
       createdAt: new Date().toISOString(),
     });
 
-    showToast('رویداد جدید به تقویم اضافه شد.', 'success');
+    showToast('رویداد جدید با موفقیت به تقویم اضافه شد.', 'success');
     resetForms();
     refreshDb();
     setQuickAddOpen(false);
@@ -186,7 +207,7 @@ export const QuickAddModal: React.FC = () => {
   const handleSubmitProject = (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectName.trim()) {
-      showToast('لطفاً نام پروژه را وارد کنید.', 'error');
+      setProjectNameError('لطفاً نام پروژه را وارد کنید.');
       return;
     }
     db.saveProject({
@@ -211,7 +232,7 @@ export const QuickAddModal: React.FC = () => {
   const handleSubmitGoal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!goalTitle.trim()) {
-      showToast('لطفاً عنوان هدف را وارد کنید.', 'error');
+      setGoalTitleError('لطفاً عنوان هدف را وارد کنید.');
       return;
     }
     db.saveGoal({
@@ -235,7 +256,7 @@ export const QuickAddModal: React.FC = () => {
   const handleSubmitHabit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!habitTitle.trim()) {
-      showToast('لطفاً عنوان عادت را وارد کنید.', 'error');
+      setHabitTitleError('لطفاً عنوان عادت را وارد کنید.');
       return;
     }
     db.saveHabit({
@@ -259,7 +280,7 @@ export const QuickAddModal: React.FC = () => {
   const handleSubmitNote = (e: React.FormEvent) => {
     e.preventDefault();
     if (!noteTitle.trim()) {
-      showToast('لطفاً عنوان یادداشت را وارد کنید.', 'error');
+      setNoteTitleError('لطفاً عنوان یادداشت را وارد کنید.');
       return;
     }
     const tagsArray = noteTags
@@ -289,7 +310,7 @@ export const QuickAddModal: React.FC = () => {
   const handleSubmitReminder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reminderTitle.trim()) {
-      showToast('لطفاً عنوان یادآور را وارد کنید.', 'error');
+      setReminderTitleError('لطفاً عنوان یادآور را وارد کنید.');
       return;
     }
     db.saveReminder({
@@ -403,24 +424,16 @@ export const QuickAddModal: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className={labelClass}>تاریخ سررسید (مهلت)</label>
-                <input
-                  type="date"
-                  value={taskDueDate}
-                  onChange={(e) => setTaskDueDate(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>ساعت مشخص</label>
-                <input
-                  type="time"
-                  value={taskDueTime}
-                  onChange={(e) => setTaskDueTime(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
+              <PersianDatePicker
+                label="تاریخ سررسید (مهلت)"
+                value={taskDueDate}
+                onChange={setTaskDueDate}
+              />
+              <PersianTimePicker
+                label="ساعت مشخص"
+                value={taskDueTime}
+                onChange={setTaskDueTime}
+              />
             </div>
 
             <div>
@@ -517,33 +530,23 @@ export const QuickAddModal: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div>
-                <label className={labelClass}>تاریخ</label>
-                <input
-                  type="date"
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>ساعت شروع</label>
-                <input
-                  type="time"
-                  value={eventStartTime}
-                  onChange={(e) => setEventStartTime(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>ساعت پایان</label>
-                <input
-                  type="time"
-                  value={eventEndTime}
-                  onChange={(e) => setEventEndTime(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
+              <PersianDatePicker
+                label="تاریخ رویداد"
+                value={eventDate}
+                onChange={setEventDate}
+                required
+              />
+              <PersianTimePicker
+                label="ساعت شروع"
+                value={eventStartTime}
+                onChange={setEventStartTime}
+                required
+              />
+              <PersianTimePicker
+                label="ساعت پایان"
+                value={eventEndTime}
+                onChange={setEventEndTime}
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -622,15 +625,11 @@ export const QuickAddModal: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className={labelClass}>مهلت پایان (Deadline)</label>
-                <input
-                  type="date"
-                  value={projectDeadline}
-                  onChange={(e) => setProjectDeadline(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
+              <PersianDatePicker
+                label="مهلت پایان (Deadline)"
+                value={projectDeadline}
+                onChange={setProjectDeadline}
+              />
               <div>
                 <label className={labelClass}>اولویت</label>
                 <select
@@ -730,15 +729,11 @@ export const QuickAddModal: React.FC = () => {
                   <option value="long_term">بلندمدت (سالانه/چند ساله)</option>
                 </select>
               </div>
-              <div>
-                <label className={labelClass}>تاریخ تحقق مورد نظر</label>
-                <input
-                  type="date"
-                  value={goalTargetDate}
-                  onChange={(e) => setGoalTargetDate(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
+              <PersianDatePicker
+                label="تاریخ تحقق مورد نظر"
+                value={goalTargetDate}
+                onChange={setGoalTargetDate}
+              />
             </div>
 
             <div>
@@ -988,25 +983,18 @@ export const QuickAddModal: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className={labelClass}>تاریخ یادآوری</label>
-                <input
-                  type="date"
-                  value={reminderDate}
-                  onChange={(e) => setReminderDate(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
-
-              <div>
-                <label className={labelClass}>ساعت یادآوری</label>
-                <input
-                  type="time"
-                  value={reminderTime}
-                  onChange={(e) => setReminderTime(e.target.value)}
-                  className={fieldInputClass}
-                />
-              </div>
+              <PersianDatePicker
+                label="تاریخ یادآوری"
+                value={reminderDate}
+                onChange={setReminderDate}
+                required
+              />
+              <PersianTimePicker
+                label="ساعت یادآوری"
+                value={reminderTime}
+                onChange={setReminderTime}
+                required
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">

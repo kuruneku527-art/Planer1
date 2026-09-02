@@ -37,6 +37,7 @@ export const TasksView: React.FC = () => {
   const [filterProject, setFilterProject] = useState<string>('all');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [selectedTaskForDetail, setSelectedTaskForDetail] = useState<Task | null>(null);
+  const [editTitleError, setEditTitleError] = useState('');
 
   // Queries
   const allTasks = useMemo(() => db.getTasks(), [refreshTrigger]);
@@ -65,11 +66,32 @@ export const TasksView: React.FC = () => {
 
   const handleToggleTask = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    db.toggleTaskStatus(id);
-    refreshDb();
-    if (selectedTaskForDetail && selectedTaskForDetail.id === id) {
-      const updated = db.getTask(id);
-      setSelectedTaskForDetail(updated || null);
+    const task = db.getTask(id);
+    if (!task) return;
+
+    if (task.status === 'completed') {
+      showConfirm({
+        title: 'لغو وضعیت انجام شده',
+        message: `آیا از لغو وضعیت انجام شده برای وظیفه «${task.title}» مطمئن هستید؟`,
+        confirmText: 'بله، لغو شود',
+        cancelText: 'انصراف',
+        isDanger: false,
+        onConfirm: () => {
+          db.toggleTaskStatus(id);
+          refreshDb();
+          if (selectedTaskForDetail && selectedTaskForDetail.id === id) {
+            const updated = db.getTask(id);
+            setSelectedTaskForDetail(updated || null);
+          }
+        },
+      });
+    } else {
+      db.toggleTaskStatus(id);
+      refreshDb();
+      if (selectedTaskForDetail && selectedTaskForDetail.id === id) {
+        const updated = db.getTask(id);
+        setSelectedTaskForDetail(updated || null);
+      }
     }
   };
 
@@ -92,27 +114,56 @@ export const TasksView: React.FC = () => {
   const handleUpdateTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingTask) return;
+    if (!editingTask.title.trim()) {
+      setEditTitleError('لطفاً عنوان وظیفه را وارد کنید.');
+      return;
+    }
     db.saveTask(editingTask);
     showToast('تغییرات وظیفه ذخیره شد.', 'success');
     if (selectedTaskForDetail?.id === editingTask.id) {
       setSelectedTaskForDetail(editingTask);
     }
     setEditingTask(null);
+    setEditTitleError('');
     refreshDb();
   };
 
   const handleToggleSubtask = (taskId: string, subtaskId: string) => {
     const task = db.getTask(taskId);
     if (!task) return;
-    const subtasks = task.subtasks.map((st) =>
-      st.id === subtaskId ? { ...st, completed: !st.completed } : st
-    );
-    const updated = { ...task, subtasks };
-    db.saveTask(updated);
-    if (selectedTaskForDetail?.id === taskId) {
-      setSelectedTaskForDetail(updated);
+    const subtask = task.subtasks.find((st) => st.id === subtaskId);
+    if (!subtask) return;
+
+    if (subtask.completed) {
+      showConfirm({
+        title: 'لغو تیک زیرکار',
+        message: `آیا از لغو وضعیت انجام شده برای زیرکار «${subtask.title}» مطمئن هستید؟`,
+        confirmText: 'بله، لغو شود',
+        cancelText: 'انصراف',
+        isDanger: false,
+        onConfirm: () => {
+          const subtasks = task.subtasks.map((st) =>
+            st.id === subtaskId ? { ...st, completed: false } : st
+          );
+          const updated = { ...task, subtasks };
+          db.saveTask(updated);
+          if (selectedTaskForDetail?.id === taskId) {
+            setSelectedTaskForDetail(updated);
+          }
+          refreshDb();
+        },
+      });
+    } else {
+      const subtasks = task.subtasks.map((st) =>
+        st.id === subtaskId ? { ...st, completed: true } : st
+      );
+      const updated = { ...task, subtasks };
+      db.saveTask(updated);
+      if (selectedTaskForDetail?.id === taskId) {
+        setSelectedTaskForDetail(updated);
+      }
+      refreshDb();
     }
-    refreshDb();
   };
 
   const kanbanColumns: { id: TaskStatus; title: string; color: string }[] = [
@@ -122,7 +173,7 @@ export const TasksView: React.FC = () => {
   ];
 
   return (
-    <div id="tasks-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto" dir="rtl">
+    <div id="tasks-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8" dir="rtl">
       {/* Header & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
         <div>
@@ -659,11 +710,18 @@ export const TasksView: React.FC = () => {
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">عنوان وظیفه *</label>
               <input
                 type="text"
-                required
                 value={editingTask.title}
-                onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
-                className="h-11 w-full px-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-100 text-xs sm:text-sm focus:outline-none focus:border-purple-500 transition"
+                onChange={(e) => {
+                  setEditingTask({ ...editingTask, title: e.target.value });
+                  if (editTitleError) setEditTitleError('');
+                }}
+                className={`h-11 w-full px-3.5 rounded-xl bg-slate-800 border ${
+                  editTitleError ? 'border-rose-500 focus:border-rose-500' : 'border-slate-700 focus:border-purple-500'
+                } text-slate-100 text-xs sm:text-sm focus:outline-none transition`}
               />
+              {editTitleError && (
+                <p className="text-xs text-rose-400 mt-1">{editTitleError}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">

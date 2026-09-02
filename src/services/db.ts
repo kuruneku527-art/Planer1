@@ -110,11 +110,60 @@ class DatabaseService {
       tasks.unshift(task);
     }
     this.set(STORAGE_KEYS.TASKS, tasks);
+
+    // Sync Reminder & Notification scheduling (Zero Duplicate Guaranteed)
+    const remId = `rem_task_${task.id}`;
+    if (typeof window !== 'undefined') {
+      import('./notificationService').then(({ notificationService }) => {
+        if (task.status === 'completed' || task.status === 'cancelled' || !task.dueDate) {
+          notificationService.cancelNotification(remId);
+          const rems = this.getReminders().filter((r) => r.id !== remId);
+          this.set(STORAGE_KEYS.REMINDERS, rems);
+        } else if (task.dueDate) {
+          const dueTime = task.dueTime || '09:00';
+          notificationService.scheduleNotification({
+            id: remId,
+            title: `موعد انجام وظیفه: ${task.title}`,
+            message: task.description || `ساعت سررسید: ${dueTime}`,
+            scheduledDate: task.dueDate,
+            scheduledTime: dueTime,
+            type: 'task',
+            targetView: 'tasks',
+            sourceId: task.id,
+          });
+
+          // Sync into reminders collection
+          const rems = this.getReminders().filter((r) => r.id !== remId);
+          res: rems.unshift({
+            id: remId,
+            title: `موعد انجام وظیفه: ${task.title}`,
+            description: task.description,
+            date: task.dueDate,
+            time: dueTime,
+            type: 'none',
+            priority: task.priority,
+            isCompleted: false,
+            createdAt: task.createdAt,
+          });
+          this.set(STORAGE_KEYS.REMINDERS, rems);
+        }
+      });
+    }
   }
 
   deleteTask(id: string): void {
     const tasks = this.getTasks().filter((t) => t.id !== id);
     this.set(STORAGE_KEYS.TASKS, tasks);
+
+    const remId = `rem_task_${id}`;
+    const rems = this.getReminders().filter((r) => r.id !== remId);
+    this.set(STORAGE_KEYS.REMINDERS, rems);
+
+    if (typeof window !== 'undefined') {
+      import('./notificationService').then(({ notificationService }) => {
+        notificationService.cancelNotification(remId);
+      });
+    }
   }
 
   toggleTaskStatus(id: string): Task | undefined {
@@ -125,6 +174,34 @@ class DatabaseService {
       task.status = isCompleted ? 'todo' : 'completed';
       task.completedAt = isCompleted ? undefined : new Date().toISOString();
       this.set(STORAGE_KEYS.TASKS, tasks);
+
+      const remId = `rem_task_${id}`;
+      if (typeof window !== 'undefined') {
+        import('./notificationService').then(({ notificationService }) => {
+          if (task.status === 'completed') {
+            notificationService.cancelNotification(remId);
+            const rems = this.getReminders().map((r) =>
+              r.id === remId ? { ...r, isCompleted: true } : r
+            );
+            this.set(STORAGE_KEYS.REMINDERS, rems);
+          } else if (task.dueDate) {
+            notificationService.scheduleNotification({
+              id: remId,
+              title: `موعد انجام وظیفه: ${task.title}`,
+              message: task.description || `ساعت سررسید: ${task.dueTime || '09:00'}`,
+              scheduledDate: task.dueDate,
+              scheduledTime: task.dueTime || '09:00',
+              type: 'task',
+              targetView: 'tasks',
+              sourceId: task.id,
+            });
+            const rems = this.getReminders().map((r) =>
+              r.id === remId ? { ...r, isCompleted: false } : r
+            );
+            this.set(STORAGE_KEYS.REMINDERS, rems);
+          }
+        });
+      }
       return task;
     }
     return undefined;
@@ -346,11 +423,33 @@ class DatabaseService {
       events.push(event);
     }
     this.set(STORAGE_KEYS.EVENTS, events);
+
+    if (typeof window !== 'undefined' && event.startDate) {
+      import('./notificationService').then(({ notificationService }) => {
+        const remKey = `rem_event_${event.id}`;
+        notificationService.scheduleNotification({
+          id: remKey,
+          title: `رویداد تقویم: ${event.title}`,
+          message: event.location ? `مکان: ${event.location} - زمان: ${event.startTime || '09:00'}` : `زمان برگزاری: ${event.startTime || '09:00'}`,
+          scheduledDate: event.startDate,
+          scheduledTime: event.startTime || '09:00',
+          type: 'calendar',
+          targetView: 'calendar',
+          sourceId: event.id,
+        });
+      });
+    }
   }
 
   deleteEvent(id: string): void {
     const events = this.getEvents().filter((e) => e.id !== id);
     this.set(STORAGE_KEYS.EVENTS, events);
+
+    if (typeof window !== 'undefined') {
+      import('./notificationService').then(({ notificationService }) => {
+        notificationService.cancelNotification(`rem_event_${id}`);
+      });
+    }
   }
 
   // --- REMINDERS ---
@@ -367,11 +466,38 @@ class DatabaseService {
       reminders.unshift(reminder);
     }
     this.set(STORAGE_KEYS.REMINDERS, reminders);
+
+    if (typeof window !== 'undefined') {
+      import('./notificationService').then(({ notificationService }) => {
+        const remKey = reminder.id.startsWith('rem_') ? reminder.id : `rem_${reminder.id}`;
+        if (reminder.isCompleted) {
+          notificationService.cancelNotification(remKey);
+        } else {
+          notificationService.scheduleNotification({
+            id: remKey,
+            title: `یادآور: ${reminder.title}`,
+            message: reminder.description || `زمان تنظیم شده: ${reminder.time}`,
+            scheduledDate: reminder.date,
+            scheduledTime: reminder.time,
+            type: 'reminder',
+            targetView: 'reminders',
+            sourceId: reminder.id,
+          });
+        }
+      });
+    }
   }
 
   deleteReminder(id: string): void {
     const reminders = this.getReminders().filter((r) => r.id !== id);
     this.set(STORAGE_KEYS.REMINDERS, reminders);
+
+    if (typeof window !== 'undefined') {
+      import('./notificationService').then(({ notificationService }) => {
+        notificationService.cancelNotification(`rem_${id}`);
+        notificationService.cancelNotification(id);
+      });
+    }
   }
 
   toggleReminder(id: string): void {
@@ -380,6 +506,26 @@ class DatabaseService {
     if (reminder) {
       reminder.isCompleted = !reminder.isCompleted;
       this.set(STORAGE_KEYS.REMINDERS, reminders);
+
+      if (typeof window !== 'undefined') {
+        import('./notificationService').then(({ notificationService }) => {
+          const remKey = reminder.id.startsWith('rem_') ? reminder.id : `rem_${reminder.id}`;
+          if (reminder.isCompleted) {
+            notificationService.cancelNotification(remKey);
+          } else {
+            notificationService.scheduleNotification({
+              id: remKey,
+              title: `یادآور: ${reminder.title}`,
+              message: reminder.description || `زمان تنظیم شده: ${reminder.time}`,
+              scheduledDate: reminder.date,
+              scheduledTime: reminder.time,
+              type: 'reminder',
+              targetView: 'reminders',
+              sourceId: reminder.id,
+            });
+          }
+        });
+      }
     }
   }
 

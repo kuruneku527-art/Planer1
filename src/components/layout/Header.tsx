@@ -88,12 +88,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle }) => {
   return (
     <header
       id="main-header"
-      className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 flex items-center justify-between sticky top-0 z-20 transition-all px-3 sm:px-6 shrink-0"
-      style={{
-        paddingTop: 'max(env(safe-area-inset-top, 0px), 0.5rem)',
-        paddingBottom: '0.5rem',
-        minHeight: 'calc(3.75rem + env(safe-area-inset-top, 0px))',
-      }}
+      className="h-14 sm:h-16 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 flex items-center justify-between shrink-0 z-20 px-3 sm:px-6 transition-all"
       dir="rtl"
     >
       {/* Right side: Mobile Menu + View Title & Date */}

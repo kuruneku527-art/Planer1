@@ -61,7 +61,7 @@ export const DashboardView: React.FC = () => {
       : `${focusRemMinutes} دقیقه`;
 
   return (
-    <div id="dashboard-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto" dir="rtl">
+    <div id="dashboard-view" className="space-y-4 sm:space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8" dir="rtl">
       {/* Welcome Banner */}
       <div id="dashboard-welcome-banner" className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-indigo-950/40 border border-purple-800/30 p-3.5 sm:p-8">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5 sm:gap-4">

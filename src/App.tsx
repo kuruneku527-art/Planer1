@@ -11,6 +11,8 @@ import { NotificationCenterModal } from './components/layout/NotificationCenterM
 import { WelcomeModal } from './components/layout/WelcomeModal';
 import { ToastContainer } from './components/common/ToastContainer';
 import { ConfirmationModal } from './components/common/ConfirmationModal';
+import { ActiveAlarmBanner } from './components/common/ActiveAlarmBanner';
+import { PermissionSetupModal } from './components/common/PermissionSetupModal';
 
 // Views
 import { DashboardView } from './components/views/DashboardView';
@@ -83,7 +85,7 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div id="planner-root" className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden" dir="rtl">
+    <div id="planner-root" className="fixed inset-0 w-full h-full flex bg-slate-950 text-slate-100 font-sans overflow-hidden" dir="rtl">
       {/* Persistent Desktop & Tablet Sidebar (Hidden when strict lock is active) */}
       {!isLockActive && (
         <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
@@ -96,12 +98,7 @@ const MainLayout: React.FC = () => {
           <Header onMobileMenuToggle={() => setDrawerOpen(true)} />
         ) : (
           <header
-            className="px-4 sm:px-6 bg-slate-900/95 border-b border-rose-900/40 flex items-center justify-between sticky top-0 z-30 shrink-0"
-            style={{
-              paddingTop: 'max(env(safe-area-inset-top, 0px), 0.75rem)',
-              paddingBottom: '0.75rem',
-              minHeight: 'calc(3.75rem + env(safe-area-inset-top, 0px))',
-            }}
+            className="h-14 sm:h-16 px-4 sm:px-6 bg-slate-900/95 border-b border-rose-900/40 flex items-center justify-between shrink-0 z-30"
           >
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
@@ -121,7 +118,7 @@ const MainLayout: React.FC = () => {
         )}
 
         {/* Scrollable View Container */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-32 sm:pb-8">
           {renderCurrentView()}
         </main>
       </div>
@@ -131,7 +128,11 @@ const MainLayout: React.FC = () => {
         <MobileNav drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} />
       )}
 
+      {/* Active High-Priority Alarm Alert Banner */}
+      <ActiveAlarmBanner />
+
       {/* Global Modals */}
+      <PermissionSetupModal />
       <QuickAddModal />
       <GlobalSearchModal />
       <NotificationCenterModal />
