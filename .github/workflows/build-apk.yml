@@ -1,0 +1,418 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # --------------------------------------------------
+      # 1. Checkout
+      # --------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # --------------------------------------------------
+      # 2. Node.js
+      # --------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      # --------------------------------------------------
+      # 3. Java
+      # --------------------------------------------------
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      # --------------------------------------------------
+      # 4. Gradle
+      # --------------------------------------------------
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          add-job-summary: on-failure
+
+      # --------------------------------------------------
+      # 5. Verify project structure
+      # --------------------------------------------------
+      - name: Verify project structure
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "PROJECT STRUCTURE"
+          echo "========================================"
+
+          pwd
+
+          echo ""
+          echo "Root files:"
+          ls -la
+
+          echo ""
+          echo "Checking required files..."
+
+          test -f package.json
+          test -d android
+          test -f android/gradlew
+          test -d android/app
+
+          echo ""
+          echo "Project structure OK."
+
+      # --------------------------------------------------
+      # 6. Install dependencies
+      # --------------------------------------------------
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "INSTALLING NPM DEPENDENCIES"
+          echo "========================================"
+
+          npm install --no-audit --no-fund --verbose
+
+      # --------------------------------------------------
+      # 7. Verify Capacitor
+      # --------------------------------------------------
+      - name: Verify Capacitor
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "CAPACITOR VERSION"
+          echo "========================================"
+
+          npx cap --version
+
+      # --------------------------------------------------
+      # 8. Build Web App with FULL DEBUG LOG
+      # --------------------------------------------------
+      - name: Build web application
+        id: build_web
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+
+          echo "========================================"
+          echo "STARTING WEB BUILD"
+          echo "========================================"
+
+          npm run build 2>&1 | tee web-build.log
+
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+
+          echo ""
+          echo "========================================"
+          echo "WEB BUILD EXIT CODE: $BUILD_EXIT_CODE"
+          echo "========================================"
+
+          exit $BUILD_EXIT_CODE
+
+      # --------------------------------------------------
+      # 9. Show COMPLETE Web Build Log
+      # --------------------------------------------------
+      - name: Show web build error
+        if: always()
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "COMPLETE WEB BUILD LOG"
+          echo "========================================"
+
+          if [ -f web-build.log ]; then
+            cat web-build.log
+          else
+            echo "web-build.log was not created."
+          fi
+
+      # --------------------------------------------------
+      # 10. Upload Web Build Log
+      # --------------------------------------------------
+      - name: Upload web build debug log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build-debug-log
+          path: web-build.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      # --------------------------------------------------
+      # 11. Stop if Web Build Failed
+      # --------------------------------------------------
+      - name: Stop if web build failed
+        if: steps.build_web.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "WEB BUILD FAILED"
+          echo "========================================"
+          echo ""
+          echo "The complete error is available above."
+          echo "A debug log was also uploaded as an artifact."
+          echo ""
+          exit 1
+
+      # --------------------------------------------------
+      # 12. Verify dist
+      # --------------------------------------------------
+      - name: Verify web build
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "VERIFYING DIST"
+          echo "========================================"
+
+          test -f dist/index.html
+
+          echo ""
+          echo "DIST FILES:"
+          find dist -maxdepth 3 -type f -print
+
+          echo ""
+          echo "Web build verified successfully."
+
+      # --------------------------------------------------
+      # 13. Sync Capacitor
+      # --------------------------------------------------
+      - name: Sync Capacitor
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "CAPACITOR SYNC"
+          echo "========================================"
+
+          npx cap sync android
+
+      # --------------------------------------------------
+      # 14. Android Project Information
+      # --------------------------------------------------
+      - name: Show Android project information
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "ANDROID PROJECT INFORMATION"
+          echo "========================================"
+
+          cd android
+
+          chmod +x gradlew
+
+          echo ""
+          echo "Gradle version:"
+          ./gradlew --version
+
+          echo ""
+          echo "Java version:"
+          java -version
+
+          echo ""
+          echo "Android project files:"
+          find . -maxdepth 3 -type f | sort
+
+      # --------------------------------------------------
+      # 15. Configure Android SDK
+      # --------------------------------------------------
+      - name: Configure Android SDK
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "ANDROID SDK"
+          echo "========================================"
+
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+
+          if [ -n "$ANDROID_HOME" ]; then
+            echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          elif [ -n "$ANDROID_SDK_ROOT" ]; then
+            echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+          fi
+
+          echo ""
+          echo "local.properties:"
+
+          cat android/local.properties || true
+
+      # --------------------------------------------------
+      # 16. Make Gradle executable
+      # --------------------------------------------------
+      - name: Make Gradle executable
+        shell: bash
+        run: |
+          chmod +x android/gradlew
+
+      # --------------------------------------------------
+      # 17. Build Debug APK
+      # --------------------------------------------------
+      - name: Build Debug APK
+        id: build_apk
+        working-directory: android
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+
+          echo "========================================"
+          echo "STARTING ANDROID GRADLE BUILD"
+          echo "========================================"
+
+          ./gradlew assembleDebug \
+            --full-stacktrace \
+            --info \
+            --console=plain \
+            --warning-mode=all \
+            --no-daemon 2>&1 | tee ../gradle-build.log
+
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+
+          echo ""
+          echo "========================================"
+          echo "GRADLE EXIT CODE: $BUILD_EXIT_CODE"
+          echo "========================================"
+
+          exit $BUILD_EXIT_CODE
+
+      # --------------------------------------------------
+      # 18. Show Gradle Log
+      # --------------------------------------------------
+      - name: Show Gradle build log
+        if: always()
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "COMPLETE GRADLE BUILD LOG"
+          echo "========================================"
+
+          if [ -f gradle-build.log ]; then
+            cat gradle-build.log
+          else
+            echo "gradle-build.log was not created."
+          fi
+
+      # --------------------------------------------------
+      # 19. Show Android Error Reports
+      # --------------------------------------------------
+      - name: Show Android error reports
+        if: always()
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "ANDROID ERROR REPORTS"
+          echo "========================================"
+
+          find android -type f \
+            \( \
+              -name "*.log" \
+              -o -name "*.html" \
+              -o -name "*.txt" \
+            \) \
+            -path "*build*" \
+            -print || true
+
+      # --------------------------------------------------
+      # 20. Upload Gradle Debug Logs
+      # --------------------------------------------------
+      - name: Upload Gradle debug logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-debug-logs
+          path: |
+            gradle-build.log
+            android/**/build/reports/**
+            android/**/build/outputs/logs/**
+          if-no-files-found: warn
+          retention-days: 14
+
+      # --------------------------------------------------
+      # 21. Verify APK
+      # --------------------------------------------------
+      - name: Verify APK
+        if: steps.build_apk.outcome == 'success'
+        shell: bash
+        run: |
+          set -e
+
+          echo "========================================"
+          echo "VERIFYING APK"
+          echo "========================================"
+
+          APK=$(find android/app/build/outputs/apk/debug \
+            -type f \
+            -name "*.apk" \
+            | head -n 1)
+
+          if [ -z "$APK" ]; then
+            echo ""
+            echo "ERROR: APK was not generated."
+
+            echo ""
+            echo "Searching entire Android project:"
+            find android -type f -name "*.apk" -print
+
+            exit 1
+          fi
+
+          echo ""
+          echo "APK BUILD SUCCESSFUL"
+          echo ""
+          ls -lh "$APK"
+
+      # --------------------------------------------------
+      # 22. Upload APK
+      # --------------------------------------------------
+      - name: Upload APK
+        if: steps.build_apk.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Planix-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      # --------------------------------------------------
+      # 23. Fail if Gradle Failed
+      # --------------------------------------------------
+      - name: Fail workflow if Gradle failed
+        if: steps.build_apk.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "ANDROID BUILD FAILED"
+          echo "========================================"
+          echo ""
+          echo "The complete Gradle error was printed above."
+          echo "A debug artifact was also uploaded."
+          echo ""
+          exit 1

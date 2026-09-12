@@ -1,0 +1,441 @@
+@import "tailwindcss";
+
+:root {
+  --safe-area-top: max(env(safe-area-inset-top, 0px), 0px);
+  --safe-area-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+  --safe-area-left: max(env(safe-area-inset-left, 0px), 0px);
+  --safe-area-right: max(env(safe-area-inset-right, 0px), 0px);
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --keyboard-height: 0px;
+
+  /*
+   * CRITICAL FIX: --safe-top / --safe-bottom / --safe-left / --safe-right
+   * are read all over the app (Header, MobileNav, App.tsx, Modal,
+   * ToastContainer, ActiveAlarmBanner, NotificationCenterModal) but were
+   * NEVER defined anywhere in CSS — they were only ever pushed in at
+   * runtime from MainActivity.kt via evaluateJavascript() after the
+   * Android WindowInsets listener fires.
+   *
+   * That listener callback is async and is not guaranteed to have run by
+   * the time the WebView first paints, and it can also go quiet for a
+   * beat after the app resumes from background, after a rotation, or if
+   * the WebView is recreated by the OS. Whenever that happens, these
+   * custom properties were completely undefined (not "0px" — undefined),
+   * which makes every var(--safe-top) reference invalid, so the browser
+   * treats the whole padding/height declaration as unset. That is the
+   * exact bug: content suddenly stretches to fill the raw screen and
+   * slides under the status bar / gesture bar icons.
+   *
+   * Defining a real fallback here with env(safe-area-inset-*) means the
+   * variables are ALWAYS valid the instant the page paints — with or
+   * without native code ever running. The native bridge in MainActivity.kt
+   * still overrides these with more precise pixel values afterwards
+   * (it sets them as inline styles on <html>, which always wins over this
+   * :root rule), so accuracy on devices with 3-button nav bars is
+   * unaffected — this only removes the window where the value is missing.
+   */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+html, body, #root, #planner-root {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@layer base {
+  * {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    font-family: 'Vazirmatn', sans-serif;
+  }
+}
+
+.safe-top-padding {
+  padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-top, 0px));
+}
+
+.safe-bottom-padding {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--safe-area-bottom, 0px));
+}
+
+.safe-left-padding {
+  padding-left: max(env(safe-area-inset-left, 0px), var(--safe-area-left, 0px));
+}
+
+.safe-right-padding {
+  padding-right: max(env(safe-area-inset-right, 0px), var(--safe-area-right, 0px));
+}
+
+/* ==========================================================================
+   MINIMAL MOBILE TYPOGRAPHY & SPACING OPTIMIZATIONS (Phone Screens < 640px)
+   Keeps desktop 100% intact while making mobile sleeker, lighter and minimal.
+   ========================================================================== */
+@media (max-width: 639px) {
+  /* Slightly more compact base sizing for a refined, minimal look on phones */
+  html {
+    font-size: 14.5px;
+  }
+
+  /* Compact button padding & crisp borders */
+  button, input, select, textarea {
+    font-size: 0.8125rem; /* ~11.8px */
+  }
+
+  /* Elegant tight line-heights on phone */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.015em;
+  }
+
+  /* Reduce excessive paddings inside mobile cards */
+  .rounded-2xl, .rounded-3xl {
+    border-radius: 0.875rem;
+  }
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Custom scrollbars for clean UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Smooth transitions */
+.transition-base {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   LIGHT THEME OVERRIDES (Comprehensive Support)
+   ========================================================================== */
+html.light,
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+html.light body,
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Base App Layout in Light Mode */
+html.light #planner-root,
+html.light .bg-slate-950 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Cards & Surface Containers */
+html.light .bg-slate-900,
+html.light .bg-slate-900\/95,
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/30,
+html.light .bg-slate-900\/20 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Sub-containers, nested blocks & tags */
+html.light .bg-slate-800,
+html.light .bg-slate-800\/95,
+html.light .bg-slate-800\/90,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/70,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/30 {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+/* Slate Borders */
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/60,
+html.light .border-slate-800\/40,
+html.light .border-slate-700,
+html.light .border-slate-700\/80,
+html.light .border-slate-700\/60,
+html.light .border-slate-700\/50,
+html.light .border-slate-700\/40 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Typography in Light Mode - High Contrast WCAG AA/AAA */
+html.light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-200 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-300 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-400 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-500 {
+  color: #475569 !important;
+}
+
+html.light .text-white {
+  color: #ffffff !important;
+}
+
+/* Hover States */
+html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-800\/60:hover,
+html.light .hover\:bg-slate-700:hover,
+html.light .hover\:bg-slate-700\/60:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .hover\:text-slate-200:hover,
+html.light .hover\:text-slate-100:hover {
+  color: #0f172a !important;
+}
+
+/* Inputs, Textareas, Selects */
+html.light input[type="text"],
+html.light input[type="number"],
+html.light input[type="date"],
+html.light input[type="time"],
+html.light input[type="datetime-local"],
+html.light textarea,
+html.light select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Accent Badges & Tinted Sections (Purple) */
+html.light .bg-purple-950,
+html.light .bg-purple-950\/90,
+html.light .bg-purple-950\/80,
+html.light .bg-purple-950\/70,
+html.light .bg-purple-950\/60,
+html.light .bg-purple-950\/50,
+html.light .bg-purple-950\/40 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+}
+
+html.light .text-purple-300,
+html.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+html.light .border-purple-800,
+html.light .border-purple-800\/60,
+html.light .border-purple-800\/50,
+html.light .border-purple-800\/40,
+html.light .border-purple-700,
+html.light .border-purple-700\/60,
+html.light .border-purple-700\/40 {
+  border-color: #ddd6fe !important;
+}
+
+/* Accent Badges (Emerald / Green) */
+html.light .bg-emerald-950,
+html.light .bg-emerald-950\/80,
+html.light .bg-emerald-950\/60,
+html.light .bg-emerald-950\/40 {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+}
+
+html.light .text-emerald-300,
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html.light .border-emerald-800,
+html.light .border-emerald-800\/60,
+html.light .border-emerald-700 {
+  border-color: #a7f3d0 !important;
+}
+
+/* Accent Badges (Rose / Red) */
+html.light .bg-rose-950,
+html.light .bg-rose-950\/80,
+html.light .bg-rose-950\/60,
+html.light .bg-rose-950\/40 {
+  background-color: #fff1f2 !important;
+  color: #9f1239 !important;
+}
+
+html.light .text-rose-300,
+html.light .text-rose-400 {
+  color: #e11d48 !important;
+}
+
+html.light .border-rose-800,
+html.light .border-rose-800\/60 {
+  border-color: #fecdd3 !important;
+}
+
+/* Accent Badges (Amber / Orange) */
+html.light .bg-amber-950,
+html.light .bg-amber-950\/80,
+html.light .bg-amber-950\/60,
+html.light .bg-amber-950\/40 {
+  background-color: #fffbeb !important;
+  color: #92400e !important;
+}
+
+html.light .text-amber-300,
+html.light .text-amber-400 {
+  color: #d97706 !important;
+}
+
+html.light .border-amber-800,
+html.light .border-amber-800\/60 {
+  border-color: #fde68a !important;
+}
+
+/* Accent Badges (Indigo / Blue) */
+html.light .bg-indigo-950,
+html.light .bg-indigo-950\/80,
+html.light .bg-indigo-950\/60,
+html.light .bg-indigo-950\/40 {
+  background-color: #eef2ff !important;
+  color: #3730a3 !important;
+}
+
+html.light .text-indigo-300,
+html.light .text-indigo-400 {
+  color: #4f46e5 !important;
+}
+
+html.light .border-indigo-800,
+html.light .border-indigo-800\/60 {
+  border-color: #c7d2fe !important;
+}
+
+/* Modal Backdrops & Shadows in Light Mode */
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/70,
+html.light .bg-black\/60,
+html.light .bg-black\/70 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
+
+html.light .shadow-xl,
+html.light .shadow-2xl,
+html.light .shadow-lg {
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* ==========================================================================
+   DASHBOARD WELCOME BANNER (LIGHT THEME VIBRANT & ATTRACTIVE PALETTE)
+   Modern energetic gradient (royal purple / indigo / warm sunset violet)
+   ========================================================================== */
+html.light #dashboard-welcome-banner,
+[data-theme="light"] #dashboard-welcome-banner {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.3), 0 8px 10px -6px rgba(99, 102, 241, 0.2) !important;
+  color: #ffffff !important;
+}
+
+html.light #dashboard-welcome-date-badge,
+[data-theme="light"] #dashboard-welcome-date-badge {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+}
+
+html.light #dashboard-welcome-title,
+[data-theme="light"] #dashboard-welcome-title {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+html.light #dashboard-welcome-desc,
+[data-theme="light"] #dashboard-welcome-desc {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+html.light #dashboard-secondary-focus-btn,
+[data-theme="light"] #dashboard-secondary-focus-btn {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+}
+
+html.light #dashboard-secondary-focus-btn:hover,
+[data-theme="light"] #dashboard-secondary-focus-btn:hover {
+  background-color: rgba(255, 255, 255, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  color: #ffffff !important;
+}
+
+html.light #dashboard-primary-add-btn,
+[data-theme="light"] #dashboard-primary-add-btn {
+  background-color: #ffffff !important;
+  color: #6d28d9 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+html.light #dashboard-primary-add-btn:hover,
+[data-theme="light"] #dashboard-primary-add-btn:hover {
+  background-color: #f8fafc !important;
+  color: #5b21b6 !important;
+}
+
+html.light #dashboard-welcome-glow,
+[data-theme="light"] #dashboard-welcome-glow {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
+
